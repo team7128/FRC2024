@@ -1,0 +1,7 @@
+Auto functions:
+- go to point on field
+- drive forward/back a distance
+- shoot
+- intake
+- align to an apriltag (position and rotation)
+- change shooter angle (?)
