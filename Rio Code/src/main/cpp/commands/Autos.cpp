@@ -8,7 +8,18 @@
 
 #include "commands/ExampleCommand.h"
 
-frc2::CommandPtr autos::ExampleAuto(ExampleSubsystem* subsystem) {
-  return frc2::cmd::Sequence(subsystem->ExampleMethodCommand(),
-                             ExampleCommand(subsystem).ToPtr());
+#include <vector>
+
+frc2::CommandPtr autos::ExampleAuto(ExampleSubsystem* subsystem)
+{
+	std::vector<frc2::CommandPtr> autoSequence;
+
+	auto autoCmd = subsystem->ExampleMethodCommand();
+
+	autoSequence.push_back(std::move(autoCmd));
+
+	return frc2::cmd::Sequence(std::move(autoSequence));
+
+	return frc2::cmd::Sequence(subsystem->ExampleMethodCommand(),
+		ExampleCommand(subsystem).ToPtr());
 }

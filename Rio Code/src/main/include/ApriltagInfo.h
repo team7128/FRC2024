@@ -21,9 +21,9 @@ struct ApriltagInfo
 	 * Y is towards blue alliance amp
 	 * Z is vertical distance 
 	*/
-	struct {
+	struct  {
 		units::meter_t x, y, z;
-	};
+	} position;
 
 	/**
 	 * Apriltag angle in degrees
