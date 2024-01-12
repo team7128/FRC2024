@@ -2,8 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-// WE DID BRANCH STUFF
-
 #pragma once
 
 #include <optional>
@@ -36,3 +34,4 @@ class Robot : public frc::TimedRobot {
 
 	RobotContainer m_container;
 };
+// but i did other things
