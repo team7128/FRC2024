@@ -14,23 +14,32 @@ Odometry::Odometry()
 	m_angle(0)
 {
 	// Set up encoder distance per pulse (wheel circumference / pulses per revolution)
-	m_leftEncoder.SetDistancePerPulse(RobotDimensions::kWheelDiameter.value() * std::numbers::pi / HardwareConstants::kDrivebaseEncoderCountsPerRev);
-	m_rightEncoder.SetDistancePerPulse(RobotDimensions::kWheelDiameter.value() * std::numbers::pi / HardwareConstants::kDrivebaseEncoderCountsPerRev);
+	m_leftEncoder.SetDistancePerPulse(RobotConstants::kWheelDiameter.value() * std::numbers::pi / HardwareConstants::kDrivebaseEncoderCountsPerRev);
+	m_rightEncoder.SetDistancePerPulse(RobotConstants::kWheelDiameter.value() * std::numbers::pi / HardwareConstants::kDrivebaseEncoderCountsPerRev);
 }
 
 void Odometry::Periodic()
 {
-	units::meter_t leftWheelDistance = units::meter_t(m_leftEncoder.GetDistance());
-	units::meter_t rightWheelDistance = units::meter_t(m_rightEncoder.GetDistance());
-	units::meter_t centerlineDistance = (leftWheelDistance + rightWheelDistance) / 2;
+	// m_lastCenterDistance = m_centerDistance;
+	// m_lastAngle = m_angle;
 
-	units::degree_t angleChange = units::radian_t(m_gyro.GetYaw());
+	auto leftWheelDistance = units::meter_t(m_leftEncoder.GetDistance()),
+		rightWheelDistance = units::meter_t(m_rightEncoder.GetDistance());
+	auto prevDistance = m_centerDistance;
+	m_centerDistance = (leftWheelDistance + rightWheelDistance) / 2;
+	// units::meter_t distanceDriven = GetDistanceDriven();
+	auto distanceDriven = m_centerDistance - prevDistance;
+
+	auto prevAngle = m_angle;
+	m_angle = m_gyro.GetRotation2d().Degrees();
+	// units::degree_t angleChange = GetAngleTurned();
+	auto angleChange = m_angle - prevAngle;
 
 	if (angleChange == 0_deg)
 	{
 		// Handling edge case of angle change being 0, which would result in a divide by 0 otherwise
-		m_position[0] += centerlineDistance * units::math::sin(m_angle);
-		m_position[1] += centerlineDistance * units::math::cos(m_angle);
+		m_position[0] += distanceDriven * units::math::sin(m_angle);
+		m_position[1] += distanceDriven * units::math::cos(m_angle);
 	}
 	else
 	{
@@ -42,15 +51,15 @@ void Odometry::Periodic()
 		 * 
 		 * where theta0 is the intial angle, and theta1 is the angle change
 		*/
-		m_position[0] += centerlineDistance / angleChange.convert<units::radian>().value() * (units::math::sin(m_angle + angleChange) - units::math::cos(m_angle));
-		m_position[1] += centerlineDistance / angleChange.convert<units::radian>().value() * (units::math::cos(m_angle) - units::math::cos(m_angle + angleChange));
+		m_position[0] += distanceDriven / angleChange.convert<units::radian>().value() * (units::math::sin(m_angle + angleChange) - units::math::cos(m_angle));
+		m_position[1] += distanceDriven / angleChange.convert<units::radian>().value() * (units::math::cos(m_angle) - units::math::cos(m_angle + angleChange));
 	}
 
-	m_angle += angleChange;
+	units::meters_per_second_t leftWheelVel{ m_leftEncoder.GetRate() },
+		rightWheelVel{ m_rightEncoder.GetRate() };
+	m_velocity = (leftWheelVel + rightWheelVel) / 2;
 
-	m_leftEncoder.Reset();
-	m_rightEncoder.Reset();
-	m_gyro.Reset();
+	m_angularVelocity = units::degrees_per_second_t(m_gyro.GetRate());
 }
 
 void Odometry::UpdatePosition(units::meter_t x, units::meter_t y, units::degree_t angle)
@@ -58,4 +67,12 @@ void Odometry::UpdatePosition(units::meter_t x, units::meter_t y, units::degree_
 	m_position[0] = x;
 	m_position[1] = y;
 	m_angle = angle;
+}
+
+void Odometry::ResetEncoders()
+{
+	m_leftEncoder.Reset();
+	m_rightEncoder.Reset();
+	m_centerDistance = 0_m;
+	// m_lastCenterDistance = 0_m;
 }
