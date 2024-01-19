@@ -12,6 +12,7 @@
 #include "subsystems/RobotDrive.h"
 #include "subsystems/Odometry.h"
 #include "subsystems/Shooter.h"
+#include "subsystems/Intake.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -43,6 +44,8 @@ private:
 
 	Shooter m_shooterSubsystem;
 
+	//Intake::Rollers m_intakeRollersSubsystem;
+	//Intake::Deployer m_intakeDeployerSubsystem;
 
 	void ConfigureBindings();
 };

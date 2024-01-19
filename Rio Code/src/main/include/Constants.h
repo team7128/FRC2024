@@ -55,6 +55,14 @@ namespace HardwareConstants
 	};
 
 	/**
+	 * Spark MAX IDs for intake motors
+	*/
+	inline constexpr int kIntakeSparkIDs[2] = {
+		3,	// Top Spark
+		4	// Bottom Spark
+	};
+
+	/**
 	 * Drivebase encoder A and B channel DIO ports
 	*/
 	inline constexpr int kDrivebaseEncoderPorts[4] = {
@@ -62,6 +70,21 @@ namespace HardwareConstants
 		0, 1	// Right encoder A and B channels
 	};
 
+	/**
+	 * Solenoid forward and back channels for amp ramp extender
+	*/
+	inline constexpr int kAmpSolenoidChannels[4] = {
+		1, 2,	// Left ramp solenoid
+		3, 4	// Right ramp solenoid
+	};
+
+	/**
+	 * Solenoid forward and back channels for intake deployers
+	*/
+	inline constexpr int kIntakeSolenoidChannels[4] = {
+		5, 6,	// Left ramp solenoid
+		7, 8	// Right ramp solenoid
+	};
 
 	// Counts per revolution of drivebase encoders
 	inline constexpr int kDrivebaseEncoderCountsPerRev = 360;
