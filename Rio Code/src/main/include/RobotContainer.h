@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <frc/Timer.h>
-
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandXboxController.h>
 
@@ -13,6 +11,7 @@
 #include "subsystems/ExampleSubsystem.h"
 #include "subsystems/RobotDrive.h"
 #include "subsystems/Odometry.h"
+#include "subsystems/Shooter.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -28,6 +27,9 @@ public:
 
 	frc2::CommandPtr GetAutonomousCommand();
 
+	/// Handles position estimation using encoders and gyro
+	Odometry m_odometry;
+
 private:
 	frc2::CommandXboxController m_driverController{
 		OperatorConstants::kDriverControllerPort
@@ -39,8 +41,8 @@ private:
 	/// Robot drive subsystem
 	RobotDrive m_driveSubsystem;
 
-	/// Handles position estimation using encoders and gyro
-	Odometry m_odometry;
+	Shooter m_shooterSubsystem;
+
 
 	void ConfigureBindings();
 };

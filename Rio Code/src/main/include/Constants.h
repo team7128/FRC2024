@@ -47,6 +47,14 @@ namespace HardwareConstants
 	};
 
 	/**
+	 * Spark MAX IDs for shooter motors
+	*/
+	inline constexpr int kShooterSparkIDs[2] = {
+		1,	// Left Spark
+		2	// Right Spark
+	};
+
+	/**
 	 * Drivebase encoder A and B channel DIO ports
 	*/
 	inline constexpr int kDrivebaseEncoderPorts[4] = {
