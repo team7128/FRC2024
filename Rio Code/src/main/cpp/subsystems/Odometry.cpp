@@ -1,39 +1,58 @@
 #include "subsystems/Odometry.h"
 
+#include <frc/shuffleboard/Shuffleboard.h>
+
 #include <numbers>
 
 #include <units/math.h>
 
 #include "Constants.h"
 
+using namespace HardwareConstants;
+using namespace RobotConstants;
+
 Odometry::Odometry()
-	: m_leftEncoder(HardwareConstants::kDrivebaseEncoderPorts[0], HardwareConstants::kDrivebaseEncoderPorts[1]),
-	m_rightEncoder(HardwareConstants::kDrivebaseEncoderPorts[2], HardwareConstants::kDrivebaseEncoderPorts[3]),
-	m_gyro(frc::SPI::Port::kMXP),
-	m_position{ 0_m, 0_m },
-	m_angle(0)
+	: m_leftEncoder(kDrivebaseEncoderPorts[0], kDrivebaseEncoderPorts[1]),
+	m_rightEncoder(kDrivebaseEncoderPorts[2], kDrivebaseEncoderPorts[3]),
+	m_gyro(frc::SPI::Port::kMXP)
 {
 	// Set up encoder distance per pulse (wheel circumference / pulses per revolution)
-	m_leftEncoder.SetDistancePerPulse(RobotConstants::kWheelDiameter.value() * std::numbers::pi / HardwareConstants::kDrivebaseEncoderCountsPerRev);
-	m_rightEncoder.SetDistancePerPulse(RobotConstants::kWheelDiameter.value() * std::numbers::pi / HardwareConstants::kDrivebaseEncoderCountsPerRev);
+	m_leftEncoder.SetDistancePerPulse(kWheelDiameter.value() * std::numbers::pi / kDrivebaseEncoderCountsPerRev);
+	m_rightEncoder.SetDistancePerPulse(kWheelDiameter.value() * std::numbers::pi / kDrivebaseEncoderCountsPerRev);
+	
+	m_leftEncoder.SetReverseDirection(true);
+
+	auto &mainTab = frc::Shuffleboard::GetTab("Main");
+
+	mainTab.AddDoubleArray("Position", [this] {
+		std::vector<double> result;
+		result.push_back(this->m_position[0].value());
+		result.push_back(this->m_position[1].value());
+		return result;
+	}).WithWidget(frc::BuiltInWidgets::kTextView);
+
+	mainTab.Add("Left encoder", m_leftEncoder);
+	mainTab.Add("Right encoder", m_rightEncoder);
+
+	mainTab.Add("Gyro", m_gyro);
+
+	// Initialize all position variables to 0
+	ResetPosition();
 }
 
 void Odometry::Periodic()
 {
-	// m_lastCenterDistance = m_centerDistance;
-	// m_lastAngle = m_angle;
-
 	auto leftWheelDistance = units::meter_t(m_leftEncoder.GetDistance()),
 		rightWheelDistance = units::meter_t(m_rightEncoder.GetDistance());
 	auto prevDistance = m_centerDistance;
 	m_centerDistance = (leftWheelDistance + rightWheelDistance) / 2;
-	// units::meter_t distanceDriven = GetDistanceDriven();
 	auto distanceDriven = m_centerDistance - prevDistance;
 
-	auto prevAngle = m_angle;
-	m_angle = m_gyro.GetRotation2d().Degrees();
-	// units::degree_t angleChange = GetAngleTurned();
+	auto prevAngle = m_gyroAngle;
+	m_gyroAngle = m_gyro.GetRotation2d().Degrees();
 	auto angleChange = m_angle - prevAngle;
+
+	m_angle += angleChange;
 
 	if (angleChange == 0_deg)
 	{
@@ -60,7 +79,7 @@ void Odometry::Periodic()
 	m_velocity = (leftWheelVel + rightWheelVel) / 2;
 
 	m_angularVelocity = units::degrees_per_second_t(m_gyro.GetRate());
-}
+};
 
 void Odometry::UpdatePosition(units::meter_t x, units::meter_t y, units::degree_t angle)
 {
@@ -74,5 +93,17 @@ void Odometry::ResetEncoders()
 	m_leftEncoder.Reset();
 	m_rightEncoder.Reset();
 	m_centerDistance = 0_m;
-	// m_lastCenterDistance = 0_m;
+}
+
+void Odometry::ResetGyro()
+{
+	m_gyro.Reset();
+	m_gyroAngle = 0_deg;
+}
+
+void Odometry::ResetPosition()
+{
+	ResetEncoders();
+	ResetGyro();
+	UpdatePosition(0_m, 0_m, 0_deg);
 }

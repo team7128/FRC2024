@@ -31,7 +31,7 @@ namespace OperatorConstants
 	 * Max driving and turn speeds for teleop players
 	*/
 	inline constexpr units::meters_per_second_t kMaxTeleopSpeed = 4_mps;
-	inline constexpr units::degrees_per_second_t kMaxTeleopTurnSpeed = 40_deg_per_s;
+	inline constexpr units::degrees_per_second_t kMaxTeleopTurnSpeed = 360_deg_per_s;
 }  // namespace OperatorConstants
 
 namespace HardwareConstants
@@ -51,12 +51,12 @@ namespace HardwareConstants
 	*/
 	inline constexpr int kDrivebaseEncoderPorts[4] = {
 		2, 3,	// Left encoder A and B channels
-		4, 5	// Right encoder A and B channels
+		0, 1	// Right encoder A and B channels
 	};
 
-	// Counts per revolution of drivebase encoders
-	inline constexpr int kDrivebaseEncoderCountsPerRev = 400;
 
+	// Counts per revolution of drivebase encoders
+	inline constexpr int kDrivebaseEncoderCountsPerRev = 360;
 }	// namespace HardwareConstants
 
 namespace RobotConstants
@@ -65,24 +65,24 @@ namespace RobotConstants
 	inline constexpr units::meter_t kWheelDiameter = 6_in;
 
 	/// Maximum wheel speed if motors are running at full throttle
-	inline constexpr units::meters_per_second_t kMaxWheelSpeed = 3_mps;
+	inline constexpr units::meters_per_second_t kMaxWheelSpeed = 4_mps;
 }	// namespace RobotDimensions
 
 namespace AutoConstants
 {
-	inline constexpr double kDriveP = 1,
-		kDriveI = 0.02,
-		kDriveD = 0.1;
+	inline constexpr double kDriveP = 4,
+		kDriveI = 0.12,
+		kDriveD = 0.03;
 
-	inline constexpr units::meters_per_second_t kMaxDriveVelocity = 1_mps;
+	inline constexpr units::meters_per_second_t kMaxDriveVelocity = 3_mps;
 	inline constexpr units::meters_per_second_squared_t kMaxDriveAccel = 0.5_mps_sq;
 	inline const frc::TrapezoidProfile<units::meters> kDriveProfile = { { kMaxDriveVelocity, kMaxDriveAccel } };
 
 	inline constexpr double kTurnP = 1,
 		kTurnI = 0.02,
-		kTurnD = 0.1;
+		kTurnD = 0.03;
 
-	inline constexpr units::degrees_per_second_t kMaxTurnVelocity = 30_deg_per_s;
+	inline constexpr units::degrees_per_second_t kMaxTurnVelocity = 210_deg_per_s;
 	inline constexpr units::degrees_per_second_squared_t kMaxTurnAccel = 10_deg_per_s_sq;
 	inline const frc::TrapezoidProfile<units::degrees> kTurnProfile = { { kMaxTurnVelocity, kMaxTurnAccel } };
 }

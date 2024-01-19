@@ -8,7 +8,6 @@
 
 void Robot::RobotInit()
 {
-
 }
 
 /**
@@ -21,8 +20,12 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
+	// wpi::outs() << "Testing prints.\n";
+
 	frc2::CommandScheduler::GetInstance().Run();
 }
+
+
 
 /**
  * This function is called once each time the robot enters Disabled mode. You
@@ -32,6 +35,11 @@ void Robot::RobotPeriodic()
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {}
+
+void Robot::DisabledExit()
+{
+	m_container.m_odometry.ResetEncoders();
+}
 
 /**
  * This autonomous runs the autonomous command selected by your {@link
@@ -43,8 +51,11 @@ void Robot::AutonomousInit()
 
 	if (m_autonomousCommand)
 	{
+		wpi::outs() << "Initiating auto.\n";
 		m_autonomousCommand->Schedule();
 	}
+
+	wpi::outs().flush();
 }
 
 void Robot::AutonomousPeriodic()

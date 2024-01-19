@@ -7,7 +7,7 @@
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/XboxController.h>
 
-#include <ctre/Phoenix.h>
+#include <ctre/phoenix/motorcontrol/can/WPI_VictorSPX.h>
 
 #include <units/velocity.h>
 #include <units/angular_velocity.h>
@@ -21,7 +21,7 @@ public:
 	 * Command factory to provide the default human-driven arcade drive behaviour
 	 * 
 	 * @param velocity Forward/back velocity in meters/second
-	 * @param rotational Rotational velocity, in degrees/second
+	 * @param rotational Rotational velocity, in degrees/second. CCW is positive.
 	*/
 	void ArcadeDrive(units::meters_per_second_t velocity, units::degrees_per_second_t rotational, bool squareInputs);
 
@@ -32,7 +32,7 @@ public:
 
 private:
 	/// Victor SPX motor controllers
-	WPI_VictorSPX m_motorFR, m_motorBR, m_motorFL, m_motorBL;
+	ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_motorFR, m_motorBR, m_motorFL, m_motorBL;
 
 	/// Differential drive for controlling motors
 	frc::DifferentialDrive m_diffDrive;

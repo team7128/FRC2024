@@ -4,9 +4,12 @@
 
 #include "RobotContainer.h"
 
+#include <frc/shuffleboard/Shuffleboard.h>
+
 #include <frc2/command/CommandScheduler.h>
 #include <frc2/command/button/Trigger.h>
 #include <frc2/command/RunCommand.h>
+#include <frc2/command/InstantCommand.h>
 
 #include "commands/Autos.h"
 #include "commands/ExampleCommand.h"
@@ -16,8 +19,8 @@ RobotContainer::RobotContainer()
 	// Initialize all of your commands and subsystems here
 	m_driveSubsystem.SetDefaultCommand(frc2::RunCommand([this] {
 			m_driveSubsystem.ArcadeDrive(
-				m_driverController.GetLeftX() * OperatorConstants::kMaxTeleopSpeed,
-				m_driverController.GetRightY() * OperatorConstants::kMaxTeleopTurnSpeed,
+				-m_driverController.GetLeftY() * OperatorConstants::kMaxTeleopSpeed,
+				m_driverController.GetRightX() * OperatorConstants::kMaxTeleopTurnSpeed,
 				true
 			);
 		},

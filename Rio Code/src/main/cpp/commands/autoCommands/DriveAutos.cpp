@@ -1,5 +1,7 @@
 #include "commands/autoCommands/DriveAutos.h"
 
+#include <frc/shuffleboard/Shuffleboard.h>
+
 #include <frc2/command/TrapezoidProfileCommand.h>
 
 #include "Constants.h"
@@ -71,18 +73,24 @@ DriveAutos::DriveDistanceCmd::DriveDistanceCmd(RobotDrive *driveSubsystem, Odome
 			{ AutoConstants::kMaxDriveVelocity, AutoConstants::kMaxDriveAccel }
 		},
 		[odometrySubsystem] { return odometrySubsystem->GetCenterDistance(); },
-		distance,
+		odometrySubsystem->GetCenterDistance() + distance,
 		[driveSubsystem](double output, auto state) {
 			driveSubsystem->ArcadeDrive(units::meters_per_second_t(output), 0_deg_per_s, false);
 		},
 		{ driveSubsystem }
 	)
 {
+	wpi::outs() << "Beginning auto drive to " << units::to_string(odometrySubsystem->GetCenterDistance() + distance) << ".\n";
+
+	auto &tab = frc::Shuffleboard::GetTab("Main");
+	tab.Add("Auto PID", *this);
+
 	m_controller.SetTolerance(10_cm, 0.1_mps);
 }
 
 bool DriveAutos::DriveDistanceCmd::IsFinished()
 {
+	return false;
 	return m_controller.AtSetpoint();
 }
 
@@ -150,18 +158,16 @@ void DriveAutos::GoToPointCmd::Execute()
 		units::math::pow<2>(m_targetY - m_odometrySubsystem->GetY())	
 	);
 
-	if (!facingCorrect)
+	if (!facingCorrect && m_turnController.AtSetpoint())
 	{
-		if (m_turnController.AtSetpoint())
-		{
 			facingCorrect = true;
 			m_driveController.Reset(distanceToTarget);
-		}
 	}
 	
 	if (facingCorrect)
 	{
-		driveRate = units::meters_per_second_t(m_driveController.Calculate(distanceToTarget));
+		// Negative because we are going from a positive distance towards zero, which gives a negative velocity
+		driveRate = -units::meters_per_second_t(m_driveController.Calculate(distanceToTarget));
 	}
 
 	m_driveSubsystem->ArcadeDrive(driveRate, turnRate, false);
