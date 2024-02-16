@@ -6,14 +6,21 @@
 #include <frc2/command/CommandPtr.h>
 
 #include <rev/CANSparkMax.h>
+#include <ctre/phoenix/motorcontrol/can/WPI_TalonSRX.h>
 
-namespace Intake
+class Intake
 {
+private:
 	class Rollers : public frc2::SubsystemBase
 	{
 	public:
 		Rollers();
 
+		/**
+		 * @brief Enables intake rollers
+		 * 
+		 * @param speed Roller speed. Positive is to intake game piece, negative to feed it out.
+		*/
 		void Enable(double speed);
 		void Disable();
 
@@ -21,7 +28,7 @@ namespace Intake
 		frc2::CommandPtr DisableCmd();
 
 	private:
-		rev::CANSparkMax m_intakeMotorTop, m_intakeMotorBottom;
+		ctre::phoenix::motorcontrol::can::WPI_TalonSRX m_intakeMotor;
 	};
 
 	class Deployer : public frc2::SubsystemBase
@@ -33,6 +40,9 @@ namespace Intake
 		frc2::CommandPtr RetractCmd();
 
 	private:
-		frc::DoubleSolenoid m_deployerSolenoidLeft, m_deployerSolenoidRight;
 	};
-}
+	
+public:
+	Rollers m_rollerSub;
+	Deployer m_deployerSub;
+};

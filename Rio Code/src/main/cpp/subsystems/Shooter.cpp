@@ -27,6 +27,7 @@ void Shooter::Disable()
 
 frc2::CommandPtr Shooter::EnableCmd(double speed)
 {
+	return this->Run([this, speed] { this->Enable(speed); });
 	return this->RunEnd([this, speed] { this->Enable(speed); }, [this] { this->Disable(); });
 }
 

@@ -47,6 +47,14 @@ public:
 	inline units::meters_per_second_t GetVelocity() const { return m_velocity; }
 	inline units::degrees_per_second_t GetAngularVelocity() const { return m_angularVelocity; }
 
+	/**
+	 * Returns wheel velocity of given wheel
+	 * 
+	 * 0 for left wheel
+	 * 1 for right wheel
+	*/
+	inline units::meters_per_second_t GetWheelVelocity(int wheel) const { return m_wheelVelocities[wheel]; }
+
 private:
 	// Encoders for base
 	frc::Encoder m_leftEncoder, m_rightEncoder;
@@ -62,5 +70,6 @@ private:
 	units::degree_t m_gyroAngle;
 
 	units::meters_per_second_t m_velocity;
+	units::meters_per_second_t m_wheelVelocities[2];
 	units::degrees_per_second_t m_angularVelocity;
 };

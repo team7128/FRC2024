@@ -12,6 +12,7 @@
 #include <units/angular_acceleration.h>
 
 #include <frc/trajectory/TrapezoidProfile.h>
+#include <frc/controller/ProfiledPIDController.h>
 
 /**
  * The Constants header provides a convenient place for teams to hold robot-wide
@@ -27,18 +28,14 @@ namespace OperatorConstants
 {
 	inline constexpr int kDriverControllerPort = 0;
 
-	/**
-	 * Max driving and turn speeds for teleop players
-	*/
+	///	Max driving and turn speeds for teleop players
 	inline constexpr units::meters_per_second_t kMaxTeleopSpeed = 4_mps;
-	inline constexpr units::degrees_per_second_t kMaxTeleopTurnSpeed = 360_deg_per_s;
+	inline constexpr units::degrees_per_second_t kMaxTeleopTurnSpeed = 500_deg_per_s;
 }  // namespace OperatorConstants
 
 namespace HardwareConstants
 {
-	/**
-	 * Motor controller IDs for drivebase motors
-	*/
+	///	Motor controller IDs for drivebase motors
 	inline constexpr int kDrivebaseMotorIDs[4] = {
 		1,	// Front right motor
 		2,	// Back right motor
@@ -46,48 +43,31 @@ namespace HardwareConstants
 		4	// Back left motor
 	};
 
-	/**
-	 * Spark MAX IDs for shooter motors
-	*/
+	///	Spark MAX IDs for shooter motors
 	inline constexpr int kShooterSparkIDs[2] = {
 		1,	// Left Spark
 		2	// Right Spark
 	};
 
-	/**
-	 * Spark MAX IDs for intake motors
-	*/
-	inline constexpr int kIntakeSparkIDs[2] = {
-		3,	// Top Spark
-		4	// Bottom Spark
-	};
+	///	Talon SRX CAN ID for intake roller (indexer) motor
+	inline constexpr int kIntakeRollerTalonID = 5;
 
-	/**
-	 * Drivebase encoder A and B channel DIO ports
-	*/
+	///	DIO port for amp ramp limit switch
+	inline constexpr int kAmpRampSwitchPort = 4;
+	/// Talon SRX CAN ID for amp ramp motor
+	inline constexpr int kAmpRampTalonID = 6;
+
+	///	Drivebase encoder A and B channel DIO ports
 	inline constexpr int kDrivebaseEncoderPorts[4] = {
 		2, 3,	// Left encoder A and B channels
 		0, 1	// Right encoder A and B channels
 	};
 
-	/**
-	 * Solenoid forward and back channels for amp ramp extender
-	*/
-	inline constexpr int kAmpSolenoidChannels[4] = {
-		1, 2,	// Left ramp solenoid
-		3, 4	// Right ramp solenoid
-	};
-
-	/**
-	 * Solenoid forward and back channels for intake deployers
-	*/
-	inline constexpr int kIntakeSolenoidChannels[4] = {
-		5, 6,	// Left ramp solenoid
-		7, 8	// Right ramp solenoid
-	};
-
 	// Counts per revolution of drivebase encoders
 	inline constexpr int kDrivebaseEncoderCountsPerRev = 360;
+
+	/// Counts per revolution of versaplanetary encoders
+	inline constexpr int kVersaEncoderCPR = 1024;
 }	// namespace HardwareConstants
 
 namespace RobotConstants
@@ -99,21 +79,37 @@ namespace RobotConstants
 	inline constexpr units::meters_per_second_t kMaxWheelSpeed = 4_mps;
 }	// namespace RobotDimensions
 
-namespace AutoConstants
+/**
+ * Constants used to operate subsystems, such as setpoints and speeds
+*/
+namespace SubsystemConstants
 {
-	inline constexpr double kDriveP = 4,
-		kDriveI = 0.12,
-		kDriveD = 0.03;
+	///	PID values for forward/back driving PID controllers
+	inline constexpr double kDriveP = 22.0,
+		kDriveI = 0.0,
+		kDriveD = 6.0;
 
-	inline constexpr units::meters_per_second_t kMaxDriveVelocity = 3_mps;
-	inline constexpr units::meters_per_second_squared_t kMaxDriveAccel = 0.5_mps_sq;
-	inline const frc::TrapezoidProfile<units::meters> kDriveProfile = { { kMaxDriveVelocity, kMaxDriveAccel } };
+	///	Max velocity/acceleration for forward/back driving in auto
+	inline constexpr units::meters_per_second_t kMaxDriveVelocity = 4_mps;
+	inline constexpr units::meters_per_second_squared_t kMaxDriveAccel = 10_mps_sq;
 
-	inline constexpr double kTurnP = 1,
-		kTurnI = 0.02,
-		kTurnD = 0.03;
+	inline const frc::ProfiledPIDController<units::meters> kAutoDriveController{ kDriveP, kDriveI, kDriveD, { kMaxDriveVelocity, kMaxDriveAccel } };
 
-	inline constexpr units::degrees_per_second_t kMaxTurnVelocity = 210_deg_per_s;
-	inline constexpr units::degrees_per_second_squared_t kMaxTurnAccel = 10_deg_per_s_sq;
-	inline const frc::TrapezoidProfile<units::degrees> kTurnProfile = { { kMaxTurnVelocity, kMaxTurnAccel } };
+	///	PID values for turning PID controllers
+	inline constexpr double kTurnP = 60.0,
+		kTurnI = 2.2,
+		kTurnD = 1.0;
+
+	///	Max velocity/acceleration for turning in auto
+	inline constexpr units::degrees_per_second_t kMaxTurnVelocity = 300_deg_per_s;
+	inline constexpr units::degrees_per_second_squared_t kMaxTurnAccel = 800_deg_per_s_sq;
+
+	/// Intake deploy and stow angles
+	inline constexpr units::degree_t kIntakeDownAngle = -53_deg,
+		kIntakeUpAngle = 160_deg;
+
+	/// Amp ramp deploy and stow angles
+	inline constexpr units::degree_t kAmpRampDeployAngle = 0_deg,
+		kAmpRampStowAngle = 60_deg,
+		kAmpRampHomeAngle = 60_deg;
 }

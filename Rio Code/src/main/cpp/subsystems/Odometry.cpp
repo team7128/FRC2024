@@ -2,6 +2,8 @@
 
 #include <frc/shuffleboard/Shuffleboard.h>
 
+#include <wpi/raw_ostream.h>
+
 #include <numbers>
 
 #include <units/math.h>
@@ -22,22 +24,21 @@ Odometry::Odometry()
 	
 	m_leftEncoder.SetReverseDirection(true);
 
+	// Initialize all position variables to 0
+	ResetPosition();
+
 	auto &mainTab = frc::Shuffleboard::GetTab("Main");
 
-	mainTab.AddDoubleArray("Position", [this] {
-		std::vector<double> result;
-		result.push_back(this->m_position[0].value());
-		result.push_back(this->m_position[1].value());
-		return result;
-	}).WithWidget(frc::BuiltInWidgets::kTextView);
+	mainTab.AddString("Position", [this] {
+		return "[" + std::to_string(this->m_position[0].value()) + ", " + std::to_string(this->m_position[1].value()) + "]";
+	});
+
+	// mainTab.AddDouble("Angle", [this] { return this->m_angle.value(); });
 
 	mainTab.Add("Left encoder", m_leftEncoder);
 	mainTab.Add("Right encoder", m_rightEncoder);
 
 	mainTab.Add("Gyro", m_gyro);
-
-	// Initialize all position variables to 0
-	ResetPosition();
 }
 
 void Odometry::Periodic()
@@ -50,18 +51,23 @@ void Odometry::Periodic()
 
 	auto prevAngle = m_gyroAngle;
 	m_gyroAngle = m_gyro.GetRotation2d().Degrees();
-	auto angleChange = m_angle - prevAngle;
+	auto angleChange = m_gyroAngle - prevAngle;
 
 	m_angle += angleChange;
 
-	if (angleChange == 0_deg)
-	{
+	// wpi::outs() << "Position: [" + std::to_string(this->m_position[0].value()) + ", " + std::to_string(this->m_position[1].value()) + "]; ";
+	// wpi::outs() << "Angle: " << units::to_string(m_angle) << "; ";
+	// wpi::outs() << "Angle change: " << units::to_string(angleChange) << "\n";
+	// wpi::outs().flush();
+
+	// if (angleChange == 0_deg)
+	// {
 		// Handling edge case of angle change being 0, which would result in a divide by 0 otherwise
 		m_position[0] += distanceDriven * units::math::sin(m_angle);
 		m_position[1] += distanceDriven * units::math::cos(m_angle);
-	}
-	else
-	{
+	// }
+	// else
+	// {
 		/**
 		 * Obtained by integrating velocity equations of x and y
 		 * x' = cos(theta0 + theta1 * t)
@@ -70,13 +76,13 @@ void Odometry::Periodic()
 		 * 
 		 * where theta0 is the intial angle, and theta1 is the angle change
 		*/
-		m_position[0] += distanceDriven / angleChange.convert<units::radian>().value() * (units::math::sin(m_angle + angleChange) - units::math::cos(m_angle));
-		m_position[1] += distanceDriven / angleChange.convert<units::radian>().value() * (units::math::cos(m_angle) - units::math::cos(m_angle + angleChange));
-	}
+	// 	m_position[0] += distanceDriven / angleChange.convert<units::radian>().value() * (units::math::sin(m_angle + angleChange) - units::math::cos(m_angle));
+	// 	m_position[1] += distanceDriven / angleChange.convert<units::radian>().value() * (units::math::cos(m_angle) - units::math::cos(m_angle + angleChange));
+	// }
 
-	units::meters_per_second_t leftWheelVel{ m_leftEncoder.GetRate() },
-		rightWheelVel{ m_rightEncoder.GetRate() };
-	m_velocity = (leftWheelVel + rightWheelVel) / 2;
+	m_wheelVelocities[0] = units::meters_per_second_t(m_leftEncoder.GetRate());
+	m_wheelVelocities[1] = units::meters_per_second_t(m_rightEncoder.GetRate());
+	m_velocity = (m_wheelVelocities[0] + m_wheelVelocities[1]) / 2;
 
 	m_angularVelocity = units::degrees_per_second_t(m_gyro.GetRate());
 };

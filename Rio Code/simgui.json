@@ -1,0 +1,86 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "Victor SPX[1]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Victor SPX[2]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Victor SPX[3]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Victor SPX[4]": {
+        "header": {
+          "open": true
+        }
+      },
+      "navX-Sensor[4]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Main/DifferentialDrive[1]": "DifferentialDrive",
+      "/Shuffleboard/Main/Field": "Field2d",
+      "/Shuffleboard/Main/GoTo PID": "ProfiledPIDController",
+      "/Shuffleboard/Main/Gyro": "Gyro"
+    },
+    "windows": {
+      "/Shuffleboard/Main/DifferentialDrive[1]": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/Main/Field": {
+        "bottom": 544,
+        "builtin": "2024 Crescendo",
+        "height": 8.013679504394531,
+        "left": 46,
+        "right": 1088,
+        "top": 36,
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/Main/GoTo PID": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "Shuffleboard": {
+        "Main": {
+          "Field": {
+            "double[]##v_/Shuffleboard/Main/Field/Robot": {
+              "open": true
+            },
+            "open": true
+          },
+          "GoTo PID": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      }
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}

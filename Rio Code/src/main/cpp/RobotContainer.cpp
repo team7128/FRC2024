@@ -12,23 +12,23 @@
 #include <frc2/command/InstantCommand.h>
 
 #include "commands/Autos.h"
-#include "commands/ExampleCommand.h"
 
 RobotContainer::RobotContainer()
+	: m_subsystems(Subsystems::GetInstance())
 {
 	// Initialize all of your commands and subsystems here
-	m_driveSubsystem.SetDefaultCommand(frc2::RunCommand([this] {
-			m_driveSubsystem.ArcadeDrive(
+	m_subsystems.robotDriveSub.SetDefaultCommand(frc2::RunCommand([this] {
+			m_subsystems.robotDriveSub.ArcadeDrive(
 				-m_driverController.GetLeftY() * OperatorConstants::kMaxTeleopSpeed,
-				m_driverController.GetRightX() * OperatorConstants::kMaxTeleopTurnSpeed,
+				-m_driverController.GetRightX() * OperatorConstants::kMaxTeleopTurnSpeed,
 				true
 			);
 		},
-		{ &m_driveSubsystem }
+		{ &m_subsystems.robotDriveSub }
 	));
 
 	// Set shooter to not run when not in use
-	m_shooterSubsystem.SetDefaultCommand(std::move(m_shooterSubsystem.DisableCmd()));
+	m_subsystems.shooterSub.SetDefaultCommand(m_subsystems.shooterSub.DisableCmd());
 
 	// Configure the button bindings
 	ConfigureBindings();
@@ -38,21 +38,12 @@ void RobotContainer::ConfigureBindings()
 {
 	// Configure your trigger bindings here
 
-	// Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-	frc2::Trigger([this] {
-		return m_subsystem.ExampleCondition();
-	}).OnTrue(ExampleCommand(&m_subsystem).ToPtr());
-
-	// Schedule `ExampleMethodCommand` when the Xbox controller's B button is
-	// pressed, cancelling on release.
-	m_driverController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
-
-	m_driverController.A().WhileTrue(std::move(m_shooterSubsystem.EnableCmd(0.10)));
-	m_driverController.B().WhileTrue(std::move(m_shooterSubsystem.EnableCmd(0.88)));
+	m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.08));
+	m_driverController.B().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.50));
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
 {
 	// Simple testing auto to drive around a bit
-	return autos::TestAuto(&m_driveSubsystem, &m_odometry);
+	return autos::TestAuto();
 }

@@ -4,25 +4,33 @@
 
 #include "Constants.h"
 
-using namespace HardwareConstants;
-
-AmpRamp::AmpRamp()
-	: m_rampSolenoidLeft(frc::PneumaticsModuleType::CTREPCM, kAmpSolenoidChannels[0], kAmpSolenoidChannels[1]),
-	m_rampSolenoidRight(frc::PneumaticsModuleType::CTREPCM, kAmpSolenoidChannels[2], kAmpSolenoidChannels[3])
-{}
-
-frc2::CommandPtr AmpRamp::ExtendCmd()
+AmpRamp::AmpRamp() :
+	m_limitSwitch(HardwareConstants::kAmpRampSwitchPort),
+	m_motorController(HardwareConstants::kAmpRampTalonID)
 {
-	return this->RunOnce([this] {
-		this->m_rampSolenoidLeft.Set(frc::DoubleSolenoid::kForward);
-		this->m_rampSolenoidRight.Set(frc::DoubleSolenoid::kForward);
-	});
+	m_motorController.ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder);
 }
 
-frc2::CommandPtr AmpRamp::RetractCmd()
+frc2::CommandPtr AmpRamp::DeployCmd()
 {
-	return this->RunOnce([this] {
-		this->m_rampSolenoidLeft.Set(frc::DoubleSolenoid::kReverse);
-		this->m_rampSolenoidRight.Set(frc::DoubleSolenoid::kReverse);
-	});
+	return GoToAngleCmd(SubsystemConstants::kAmpRampDeployAngle, 2_deg);
+}
+
+frc2::CommandPtr AmpRamp::StowCmd()
+{
+	return GoToAngleCmd(SubsystemConstants::kAmpRampStowAngle, 2_deg);
+}
+
+frc2::CommandPtr AmpRamp::HomeCmd()
+{
+	return this->Run([this] { this->m_motorController.Set(-0.2); })
+		.Until([this] { return this->m_limitSwitch.Get(); })
+		.AndThen([this] { this->m_motorController.SetSelectedSensorPosition(SubsystemConstants::kAmpRampHomeAngle.convert<units::radians>().value()); });
+}
+
+frc2::CommandPtr AmpRamp::GoToAngleCmd(units::degree_t angle, units::degree_t deadzone)
+{
+	return this->Run([this, angle] {
+		this->m_motorController.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::Position, angle / 360.0_deg * HardwareConstants::kVersaEncoderCPR);
+	}).Until([this, deadzone] { return this->m_motorController.GetClosedLoopError() < deadzone / 360.0_deg * HardwareConstants::kVersaEncoderCPR; });
 }

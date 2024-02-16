@@ -25,20 +25,22 @@ void Robot::RobotPeriodic()
 	frc2::CommandScheduler::GetInstance().Run();
 }
 
-
-
 /**
  * This function is called once each time the robot enters Disabled mode. You
  * can use it to reset any subsystem information you want to clear when the
  * robot is disabled.
  */
-void Robot::DisabledInit() {}
+void Robot::DisabledInit()
+{
+	m_container.m_subsystems.robotDriveSub.Stop();
+}
 
 void Robot::DisabledPeriodic() {}
 
 void Robot::DisabledExit()
 {
-	m_container.m_odometry.ResetEncoders();
+	m_container.m_subsystems.robotDriveSub.ResetPosition();
+	// Subsystems::GetInstance().odometrySub.ResetEncoders();
 }
 
 /**

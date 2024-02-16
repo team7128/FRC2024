@@ -3,38 +3,47 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include <frc2/command/Commands.h>
+#include <frc2/command/InstantCommand.h>
 
 #include <vector>
 
 #include "commands/Autos.h"
-#include "commands/autoCommands/DriveAutos.h"
+#include "subsystems/Subsystems.h"
 
-#include "commands/ExampleCommand.h"
-
-frc2::CommandPtr autos::ExampleAuto(ExampleSubsystem* subsystem)
+frc2::CommandPtr autos::TestAuto()
 {
 	std::vector<frc2::CommandPtr> autoSequence;
 
-	auto autoCmd = subsystem->ExampleMethodCommand();
+	Subsystems &subsystems = Subsystems::GetInstance();
 
-	autoSequence.push_back(std::move(autoCmd));
+	// autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(90_deg));
 
-	return frc2::cmd::Sequence(std::move(autoSequence));
-}
+	// autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(-3_m));
 
-frc2::CommandPtr autos::TestAuto(RobotDrive *driveSubsystem, Odometry *odometrySubsystem)
-{
-	DriveAutos driveAutos(driveSubsystem, odometrySubsystem);
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(2_m, 0_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(0_m, 0_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(2_m, 0_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(0_m, 0_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.FacePointCmd(2_m, 0_m));
 
-	std::vector<frc2::CommandPtr> autoSequence;
+	autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(30_deg));
+	autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(8_m));
+	autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(-30_deg));
+	autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+	autoSequence.push_back(subsystems.robotDriveSub.FacePointCmd(9_m, 7_m));
+	autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2_m));
+	autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(13_m, 4_m));
+	autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(11_m, 9_m));
 
-	autoSequence.push_back(std::move(driveAutos.DriveDistance(4_m)));
-	// autoSequence.push_back(std::move(driveAutos.TurnByAngle(-90_deg)));
-	// autoSequence.push_back(std::move(driveAutos.DriveDistance(1_m)));
-	// autoSequence.push_back(std::move(driveAutos.FacePoint(0_m, 0_m)));
-	// autoSequence.push_back(std::move(driveAutos.DriveDistance(units::meter_t(std::sqrt(5)))));
-	// autoSequence.push_back(std::move(driveAutos.GoToPoint(3_m, 0_m)));
-	// autoSequence.push_back(std::move(driveAutos.GoToPoint(1_m, 1_m)));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(9_m, 4_m, 2_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(13_m, 6_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(9_m, 4_m, 2_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(11_m, 1_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(9_m, 4_m, 2_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(3_m, 3_m));
+	// autoSequence.push_back(subsystems.robotDriveSub.GoToPointCmd(9_m, 4_m, 2_m));
 
 	return frc2::cmd::Sequence(std::move(autoSequence));
 }

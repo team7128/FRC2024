@@ -8,11 +8,7 @@
 #include <frc2/command/button/CommandXboxController.h>
 
 #include "Constants.h"
-#include "subsystems/ExampleSubsystem.h"
-#include "subsystems/RobotDrive.h"
-#include "subsystems/Odometry.h"
-#include "subsystems/Shooter.h"
-#include "subsystems/Intake.h"
+#include "subsystems/Subsystems.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -28,24 +24,13 @@ public:
 
 	frc2::CommandPtr GetAutonomousCommand();
 
-	/// Handles position estimation using encoders and gyro
-	Odometry m_odometry;
+	/// Contains all subsystems to easily pass into other sections of the code
+	Subsystems &m_subsystems;
 
 private:
 	frc2::CommandXboxController m_driverController{
 		OperatorConstants::kDriverControllerPort
 	};
-
-	// The robot's subsystems are defined here...
-	ExampleSubsystem m_subsystem;
-
-	/// Robot drive subsystem
-	RobotDrive m_driveSubsystem;
-
-	Shooter m_shooterSubsystem;
-
-	//Intake::Rollers m_intakeRollersSubsystem;
-	//Intake::Deployer m_intakeDeployerSubsystem;
 
 	void ConfigureBindings();
 };

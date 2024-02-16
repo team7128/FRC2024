@@ -4,21 +4,18 @@
 
 using namespace HardwareConstants;
 
-Intake::Rollers::Rollers()
-	: m_intakeMotorTop(3, rev::CANSparkMaxLowLevel::MotorType::kBrushless),
-	m_intakeMotorBottom(4, rev::CANSparkMaxLowLevel::MotorType::kBrushless)
-{
-	m_intakeMotorBottom.Follow(m_intakeMotorTop, true);
-}
+Intake::Rollers::Rollers() :
+	m_intakeMotor(kIntakeRollerTalonID)
+{}
 
 void Intake::Rollers::Enable(double speed)
 {
-	m_intakeMotorTop.Set(speed);
+	m_intakeMotor.Set(speed);
 }
 
 void Intake::Rollers::Disable()
 {
-	m_intakeMotorTop.StopMotor();
+	m_intakeMotor.StopMotor();
 }
 
 frc2::CommandPtr Intake::Rollers::EnableTimedCmd(double speed, units::second_t time)
@@ -32,22 +29,16 @@ frc2::CommandPtr Intake::Rollers::DisableCmd()
 }
 
 Intake::Deployer::Deployer()
-	: m_deployerSolenoidLeft(frc::PneumaticsModuleType::CTREPCM, kIntakeSolenoidChannels[0], kIntakeSolenoidChannels[1]),
-	m_deployerSolenoidRight(frc::PneumaticsModuleType::CTREPCM, kIntakeSolenoidChannels[2], kIntakeSolenoidChannels[3])
 {}
 
 frc2::CommandPtr Intake::Deployer::DeployCmd()
 {
 	return this->RunOnce([this] {
-		this->m_deployerSolenoidLeft.Set(frc::DoubleSolenoid::kForward);
-		this->m_deployerSolenoidRight.Set(frc::DoubleSolenoid::kForward);
 	});
 }
 
 frc2::CommandPtr Intake::Deployer::RetractCmd()
 {
 	return this->RunOnce([this] {
-		this->m_deployerSolenoidLeft.Set(frc::DoubleSolenoid::kReverse);
-		this->m_deployerSolenoidRight.Set(frc::DoubleSolenoid::kReverse);
 	});
 }
