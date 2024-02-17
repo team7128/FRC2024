@@ -5,11 +5,9 @@
 
 #include "Constants.h"
 
-using namespace HardwareConstants;
-
-Shooter::Shooter()
-	: m_shooterLeft(kShooterSparkIDs[0], rev::CANSparkMaxLowLevel::MotorType::kBrushless),
-	m_shooterRight(kShooterSparkIDs[1], rev::CANSparkMaxLowLevel::MotorType::kBrushless)
+Shooter::Shooter() :
+	m_shooterLeft(CANConstants::kShooterSparkIDs[0], rev::CANSparkMaxLowLevel::MotorType::kBrushless),
+	m_shooterRight(CANConstants::kShooterSparkIDs[1], rev::CANSparkMaxLowLevel::MotorType::kBrushless)
 {
 	m_shooterRight.Follow(m_shooterLeft, true);
 }
@@ -28,12 +26,11 @@ void Shooter::Disable()
 frc2::CommandPtr Shooter::EnableCmd(double speed)
 {
 	return this->Run([this, speed] { this->Enable(speed); });
-	return this->RunEnd([this, speed] { this->Enable(speed); }, [this] { this->Disable(); });
 }
 
 frc2::CommandPtr Shooter::EnableTimedCmd(double speed, units::second_t time)
 {
-	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time).AndThen(std::move(DisableCmd()));
+	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::DisableCmd()

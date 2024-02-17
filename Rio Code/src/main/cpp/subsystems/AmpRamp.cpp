@@ -4,28 +4,30 @@
 
 #include "Constants.h"
 
+using namespace AmpRampConstants;
+
 AmpRamp::AmpRamp() :
-	m_limitSwitch(HardwareConstants::kAmpRampSwitchPort),
-	m_motorController(HardwareConstants::kAmpRampTalonID)
+	m_limitSwitch(DIOConstants::kAmpRampSwitchPort),
+	m_motorController(CANConstants::kAmpRampTalonID)
 {
 	m_motorController.ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder);
 }
 
 frc2::CommandPtr AmpRamp::DeployCmd()
 {
-	return GoToAngleCmd(SubsystemConstants::kAmpRampDeployAngle, 2_deg);
+	return GoToAngleCmd(kDeployAngle, 2_deg);
 }
 
 frc2::CommandPtr AmpRamp::StowCmd()
 {
-	return GoToAngleCmd(SubsystemConstants::kAmpRampStowAngle, 2_deg);
+	return GoToAngleCmd(kStowAngle, 2_deg);
 }
 
 frc2::CommandPtr AmpRamp::HomeCmd()
 {
 	return this->Run([this] { this->m_motorController.Set(-0.2); })
 		.Until([this] { return this->m_limitSwitch.Get(); })
-		.AndThen([this] { this->m_motorController.SetSelectedSensorPosition(SubsystemConstants::kAmpRampHomeAngle.convert<units::radians>().value()); });
+		.AndThen([this] { this->m_motorController.SetSelectedSensorPosition(kHomeAngle.convert<units::radians>().value()); });
 }
 
 frc2::CommandPtr AmpRamp::GoToAngleCmd(units::degree_t angle, units::degree_t deadzone)

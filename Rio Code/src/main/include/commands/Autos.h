@@ -6,9 +6,9 @@
 
 #include <frc2/command/CommandPtr.h>
 
-#include "subsystems/RobotDrive.h"
-#include "subsystems/Odometry.h"
-
 namespace autos {
+	// Initialize (home) all subsystems
+	frc2::CommandPtr InitAuto();
+
 	frc2::CommandPtr TestAuto();
 }  // namespace autos

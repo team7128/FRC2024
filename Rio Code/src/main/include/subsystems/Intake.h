@@ -1,12 +1,16 @@
 #pragma once
 
-#include <frc/DoubleSolenoid.h>
+#include <frc/Encoder.h>
+#include <frc/DigitalInput.h>
+#include <frc/controller/ArmFeedforward.h>
 
 #include <frc2/command/SubsystemBase.h>
+#include <frc2/command/ProfiledPIDSubsystem.h>
 #include <frc2/command/CommandPtr.h>
 
 #include <rev/CANSparkMax.h>
 #include <ctre/phoenix/motorcontrol/can/WPI_TalonSRX.h>
+#include <ctre/phoenix/motorcontrol/can/WPI_VictorSPX.h>
 
 class Intake
 {
@@ -31,18 +35,28 @@ private:
 		ctre::phoenix::motorcontrol::can::WPI_TalonSRX m_intakeMotor;
 	};
 
-	class Deployer : public frc2::SubsystemBase
+	class Lift : public frc2::ProfiledPIDSubsystem<units::degrees>
 	{
+		using State = frc::TrapezoidProfile<units::degrees>::State;
+
 	public:
-		Deployer();
+		Lift();
 
 		frc2::CommandPtr DeployCmd();
-		frc2::CommandPtr RetractCmd();
+		frc2::CommandPtr StowCmd();
+		frc2::CommandPtr HomeCmd();
+
+		virtual units::degree_t GetMeasurement() override;
+		virtual void UseOutput(double output, State setpoint) override;
 
 	private:
+		ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_liftMotor;
+		frc::Encoder m_encoder;
+		frc::DigitalInput m_limitSwitch;
+		frc::ArmFeedforward m_feedforward;
 	};
 	
 public:
 	Rollers m_rollerSub;
-	Deployer m_deployerSub;
+	Lift m_liftSub;
 };

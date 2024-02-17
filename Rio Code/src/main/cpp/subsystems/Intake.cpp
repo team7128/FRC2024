@@ -2,10 +2,10 @@
 
 #include "Constants.h"
 
-using namespace HardwareConstants;
+using namespace IntakeConstants;
 
 Intake::Rollers::Rollers() :
-	m_intakeMotor(kIntakeRollerTalonID)
+	m_intakeMotor(CANConstants::kIntakeRollerTalonID)
 {}
 
 void Intake::Rollers::Enable(double speed)
@@ -28,17 +28,51 @@ frc2::CommandPtr Intake::Rollers::DisableCmd()
 	return this->Run([this] { this->Disable(); });
 }
 
-Intake::Deployer::Deployer()
-{}
-
-frc2::CommandPtr Intake::Deployer::DeployCmd()
+Intake::Lift::Lift() :
+	frc2::ProfiledPIDSubsystem<units::degrees>(
+		frc::ProfiledPIDController<units::degrees>(
+			kP, 0.0, 0.0, { kMaxVel, kMaxAccel }
+		),
+		0_deg
+	),
+	m_liftMotor(CANConstants::kIntakeLiftVictorID),
+	m_limitSwitch(DIOConstants::kIntakeLimitSwitchPort),
+	m_encoder(DIOConstants::kIntakeLiftEncoderPorts[0], DIOConstants::kIntakeLiftEncoderPorts[1]),
+	m_feedforward(kS, kG, kV)
 {
-	return this->RunOnce([this] {
-	});
+	m_encoder.SetDistancePerPulse(360.0 * kLiftRatio / kLiftEncoderCPR);
 }
 
-frc2::CommandPtr Intake::Deployer::RetractCmd()
+units::degree_t Intake::Lift::GetMeasurement()
 {
-	return this->RunOnce([this] {
-	});
+	return units::degree_t(m_encoder.GetDistance());
+}
+
+void Intake::Lift::UseOutput(double output, State setpoint)
+{
+	m_liftMotor.SetVoltage(m_feedforward.Calculate(kHomeAngle - units::degree_t(m_encoder.GetDistance()), units::degrees_per_second_t(output)));
+}
+
+frc2::CommandPtr Intake::Lift::DeployCmd()
+{
+	return this->RunOnce([this] { this->SetGoal(kDeployAngle); });
+}
+
+frc2::CommandPtr Intake::Lift::StowCmd()
+{
+	// Run to 0 degrees, as this is where the intake homes to
+	return this->RunOnce([this] { this->SetGoal(0_deg); });
+}
+
+frc2::CommandPtr Intake::Lift::HomeCmd()
+{
+	return this->RunOnce([this] { this->Disable(); })	// Disable automatic PID control
+		.AndThen(this->RunEnd(
+			[this] { this->m_liftMotor.Set(-0.2); },	// Run the motor slowly
+			[this] {									// Reset the encoder and resume PID control
+				this->m_encoder.Reset();
+				this->Enable();
+			}
+		).Until([this] { return m_limitSwitch.Get(); })	// Stop once we hit the limit switch
+	);
 }

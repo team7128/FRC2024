@@ -12,6 +12,7 @@
 #include <units/angular_acceleration.h>
 
 #include <frc/trajectory/TrapezoidProfile.h>
+#include <frc/controller/ArmFeedforward.h>
 #include <frc/controller/ProfiledPIDController.h>
 
 /**
@@ -31,9 +32,18 @@ namespace OperatorConstants
 	///	Max driving and turn speeds for teleop players
 	inline constexpr units::meters_per_second_t kMaxTeleopSpeed = 4_mps;
 	inline constexpr units::degrees_per_second_t kMaxTeleopTurnSpeed = 500_deg_per_s;
-}  // namespace OperatorConstants
+}	// namespace OperatorConstants
 
 namespace HardwareConstants
+{
+	/// Counts per revolution of versaplanetary encoders
+	inline constexpr int kVersaEncoderCPR = 1024;
+}	// namespace HardwareConstants
+
+/**
+ * CAN bus IDs for various components
+*/
+namespace CANConstants
 {
 	///	Motor controller IDs for drivebase motors
 	inline constexpr int kDrivebaseMotorIDs[4] = {
@@ -42,58 +52,71 @@ namespace HardwareConstants
 		3,	// Front left motor
 		4	// Back left motor
 	};
+	///	@brief Talon SRX CAN ID for intake roller (indexer) motor
+	inline constexpr int kIntakeRollerTalonID = 5;
+
+	/// @brief Victor SPX CAN ID for intake lift motor
+	inline constexpr int kIntakeLiftVictorID = 6;
+
+	/// Talon SRX CAN ID for amp ramp motor
+	inline constexpr int kAmpRampTalonID = 7;
+
+	// Spark MAX controllers have separate IDs to CTRE controllers
 
 	///	Spark MAX IDs for shooter motors
 	inline constexpr int kShooterSparkIDs[2] = {
 		1,	// Left Spark
 		2	// Right Spark
 	};
+}	// namespace CANConstants
 
-	///	Talon SRX CAN ID for intake roller (indexer) motor
-	inline constexpr int kIntakeRollerTalonID = 5;
-
-	///	DIO port for amp ramp limit switch
-	inline constexpr int kAmpRampSwitchPort = 4;
-	/// Talon SRX CAN ID for amp ramp motor
-	inline constexpr int kAmpRampTalonID = 6;
-
-	///	Drivebase encoder A and B channel DIO ports
+/**
+ * DIO ports for various components such as encoders and limit switches
+*/
+namespace DIOConstants
+{
+	///	@brief Drivebase encoder A and B channel DIO ports
 	inline constexpr int kDrivebaseEncoderPorts[4] = {
 		2, 3,	// Left encoder A and B channels
 		0, 1	// Right encoder A and B channels
 	};
 
-	// Counts per revolution of drivebase encoders
-	inline constexpr int kDrivebaseEncoderCountsPerRev = 360;
+	///	@brief DIO port for amp ramp limit switch
+	inline constexpr int kAmpRampSwitchPort = 4;
 
-	/// Counts per revolution of versaplanetary encoders
-	inline constexpr int kVersaEncoderCPR = 1024;
-}	// namespace HardwareConstants
+	/// @brief Encoder ports for lift motor
+	inline constexpr int kIntakeLiftEncoderPorts[2] = { 5, 6 };
 
-namespace RobotConstants
+	/// @brief Limit switch port for homing the intake arms
+	inline constexpr int kIntakeLimitSwitchPort = 7;
+
+}	// namespace DIOConstants
+
+/**
+ * Constants for drivebase operation
+*/
+namespace DriveConstants
 {
+	// Counts per revolution of drivebase encoders
+	inline constexpr int kEncoderCountsPerRev = 360;
+	
+	/// Robot dimensions
 	inline constexpr units::meter_t kWheelbaseWidth = 0.6_m;
 	inline constexpr units::meter_t kWheelDiameter = 6_in;
 
 	/// Maximum wheel speed if motors are running at full throttle
 	inline constexpr units::meters_per_second_t kMaxWheelSpeed = 4_mps;
-}	// namespace RobotDimensions
 
-/**
- * Constants used to operate subsystems, such as setpoints and speeds
-*/
-namespace SubsystemConstants
-{
 	///	PID values for forward/back driving PID controllers
 	inline constexpr double kDriveP = 22.0,
 		kDriveI = 0.0,
 		kDriveD = 6.0;
 
 	///	Max velocity/acceleration for forward/back driving in auto
-	inline constexpr units::meters_per_second_t kMaxDriveVelocity = 4_mps;
+	inline constexpr units::meters_per_second_t kMaxDriveVel = 4_mps;
 	inline constexpr units::meters_per_second_squared_t kMaxDriveAccel = 10_mps_sq;
 
-	inline const frc::ProfiledPIDController<units::meters> kAutoDriveController{ kDriveP, kDriveI, kDriveD, { kMaxDriveVelocity, kMaxDriveAccel } };
+	inline const frc::ProfiledPIDController<units::meters> kAutoDriveController{ kDriveP, kDriveI, kDriveD, { kMaxDriveVel, kMaxDriveAccel } };
 
 	///	PID values for turning PID controllers
 	inline constexpr double kTurnP = 60.0,
@@ -101,15 +124,57 @@ namespace SubsystemConstants
 		kTurnD = 1.0;
 
 	///	Max velocity/acceleration for turning in auto
-	inline constexpr units::degrees_per_second_t kMaxTurnVelocity = 300_deg_per_s;
+	inline constexpr units::degrees_per_second_t kMaxTurnVel = 300_deg_per_s;
 	inline constexpr units::degrees_per_second_squared_t kMaxTurnAccel = 800_deg_per_s_sq;
 
-	/// Intake deploy and stow angles
-	inline constexpr units::degree_t kIntakeDownAngle = -53_deg,
-		kIntakeUpAngle = 160_deg;
+	inline const frc::ProfiledPIDController<units::degrees> kAutoTurnController{ kTurnP, kTurnI, kTurnD, { kMaxTurnVel, kMaxTurnAccel } };
+}
 
+/**
+ * Constants for intake operation
+*/
+namespace IntakeConstants
+{
+	/// @brief Encoder counts per rev for lift motor
+	inline constexpr int kLiftEncoderCPR = 7;
+
+	/**
+	 * @brief Ratio between motor and intake arms
+	 * Motor is a 71:1 reduction
+	 * Sprockets are in a 12t:33t
+	*/
+	inline constexpr double kLiftRatio = 1.0 / 71.0 / (33.0 / 12.0);
+
+	/// @brief Homing speed
+	inline constexpr double kHomeSpeed = -0.2;
+	/**
+	 * @brief Homed angle of the arm
+	 * this is measured clockwise from the horizontal
+	*/
+	inline constexpr units::degree_t kHomeAngle = 148_deg;
+	/**
+	 * @brief Deploy angle for the intake
+	 * Intake resets to 0 upon homing, so this is measured from the home position
+	*/
+	inline constexpr units::degree_t kDeployAngle = 238_deg;
+
+	/// Maximum velocity and acceleration for lifting the intake
+	inline constexpr units::degrees_per_second_t kMaxVel = 500_deg_per_s;
+	inline constexpr units::degrees_per_second_squared_t kMaxAccel = 2000_deg_per_s_sq;
+
+	/// Intake lift PID constants
+	inline double kP = 5.0;
+
+	/// Intake lift arm feedforward constants
+	inline units::volt_t kS = 0.0_V;
+	inline units::volt_t kG = 0.42_V;
+	inline units::unit_t<frc::ArmFeedforward::kv_unit> kV{ 0.02 };
+}
+
+namespace AmpRampConstants
+{
 	/// Amp ramp deploy and stow angles
-	inline constexpr units::degree_t kAmpRampDeployAngle = 0_deg,
-		kAmpRampStowAngle = 60_deg,
-		kAmpRampHomeAngle = 60_deg;
+	inline constexpr units::degree_t kDeployAngle = 0_deg,
+		kStowAngle = 60_deg,
+		kHomeAngle = kStowAngle;
 }

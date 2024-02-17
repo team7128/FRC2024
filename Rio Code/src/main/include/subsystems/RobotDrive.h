@@ -114,8 +114,8 @@ private:
 		7.29,
 		0.1_kg_sq_m,
 		50_kg,
-		RobotConstants::kWheelDiameter / 2,
-		RobotConstants::kWheelbaseWidth / 2
+		DriveConstants::kWheelDiameter / 2,
+		DriveConstants::kWheelbaseWidth / 2
 	};
 
 	frc::Field2d m_field;

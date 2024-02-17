@@ -12,15 +12,13 @@
 
 #include "Constants.h"
 
-using namespace HardwareConstants;
-using namespace RobotConstants;
-using namespace SubsystemConstants;
+using namespace DriveConstants;
 
 RobotDrive::RobotDrive()
-	: m_motorFR(kDrivebaseMotorIDs[0]),
-	m_motorBR(kDrivebaseMotorIDs[1]),
-	m_motorFL(kDrivebaseMotorIDs[2]),
-	m_motorBL(kDrivebaseMotorIDs[3]),
+	: m_motorFR(CANConstants::kDrivebaseMotorIDs[0]),
+	m_motorBR(CANConstants::kDrivebaseMotorIDs[1]),
+	m_motorFL(CANConstants::kDrivebaseMotorIDs[2]),
+	m_motorBL(CANConstants::kDrivebaseMotorIDs[3]),
 	m_diffDrive(m_motorFL, m_motorFR),
 	m_diffDriveKinematics(kWheelbaseWidth),
 	m_odometry{ frc::Rotation2d(0_deg), 0_m, 0_m }
@@ -121,12 +119,12 @@ void RobotDrive::ConfigureTurnController(frc::ProfiledPIDController<units::degre
 
 RobotDrive::OdometryComponents::OdometryComponents() :
 	m_gyro(frc::SPI::Port::kMXP),
-	m_leftEncoder(kDrivebaseEncoderPorts[0], kDrivebaseEncoderPorts[1]),
-	m_rightEncoder(kDrivebaseEncoderPorts[2], kDrivebaseEncoderPorts[3])
+	m_leftEncoder(DIOConstants::kDrivebaseEncoderPorts[0], DIOConstants::kDrivebaseEncoderPorts[1]),
+	m_rightEncoder(DIOConstants::kDrivebaseEncoderPorts[2], DIOConstants::kDrivebaseEncoderPorts[3])
 {
 	// Set up encoder distance per pulse (wheel circumference / pulses per revolution)
-	m_leftEncoder.SetDistancePerPulse(kWheelDiameter.value() * std::numbers::pi / kDrivebaseEncoderCountsPerRev);
-	m_rightEncoder.SetDistancePerPulse(kWheelDiameter.value() * std::numbers::pi / kDrivebaseEncoderCountsPerRev);
+	m_leftEncoder.SetDistancePerPulse(kWheelDiameter.value() * std::numbers::pi / kEncoderCountsPerRev);
+	m_rightEncoder.SetDistancePerPulse(kWheelDiameter.value() * std::numbers::pi / kEncoderCountsPerRev);
 	
 	m_leftEncoder.SetReverseDirection(true);
 
@@ -150,10 +148,7 @@ void RobotDrive::OdometryComponents::Reset()
 
 RobotDrive::DriveDistanceCmd_t::DriveDistanceCmd_t(units::meter_t distance, RobotDrive *drive) :
 	CommandHelper(
-		{
-			kDriveP, kDriveI, kDriveD,
-			{ kMaxDriveVelocity, kMaxDriveAccel }
-		},
+		kAutoDriveController,
 		[] { return 0_m; }, // Overwritten in Initialize()
 		distance,
 		[drive] (double output, auto) { drive->ArcadeDrive(units::meters_per_second_t(output), 0_deg_per_s, false); },
@@ -181,10 +176,7 @@ bool RobotDrive::DriveDistanceCmd_t::IsFinished()
 
 RobotDrive::TurnToAngleCmd_t::TurnToAngleCmd_t(units::degree_t angle, RobotDrive *drive) :
 	CommandHelper(
-		{
-			kTurnP, kTurnI, kTurnD,
-			{ kMaxTurnVelocity, kMaxTurnAccel }
-		},
+		kAutoTurnController,
 		[drive] { return drive->m_odometryComponents.GetAngle(); },
 		angle,
 		[drive] (double output, auto) { drive->ArcadeDrive(0_mps, units::degrees_per_second_t(output), false); },
@@ -210,10 +202,7 @@ bool RobotDrive::TurnToAngleCmd_t::IsFinished()
 
 RobotDrive::TurnByAngleCmd_t::TurnByAngleCmd_t(units::degree_t angle, RobotDrive *drive) :
 	CommandHelper(
-		{
-			kTurnP, kTurnI, kTurnD,
-			{ kMaxTurnVelocity, kMaxTurnAccel }
-		},
+		kAutoTurnController,
 		[] { return 0_deg; },	// Overwritten in Initialize()
 		angle,
 		[drive] (double output, auto) { drive->ArcadeDrive(0_mps, units::degrees_per_second_t(output), false); },
@@ -240,11 +229,8 @@ bool RobotDrive::TurnByAngleCmd_t::IsFinished()
 RobotDrive::GoToPointCmd_t::GoToPointCmd_t(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance, RobotDrive *drive) :
 	m_targetX(fieldX),
 	m_targetY(fieldY),
-	m_driveController{ SubsystemConstants::kAutoDriveController	},
-	m_turnController{
-		kTurnP, kTurnI, kTurnD,
-		{ kMaxTurnVelocity, kMaxTurnAccel }	
-	},
+	m_driveController(kAutoDriveController),
+	m_turnController(kAutoTurnController),
 	m_robotDriveSub(drive)
 {
 	AddRequirements(drive);
