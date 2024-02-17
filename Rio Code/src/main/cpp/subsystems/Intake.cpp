@@ -18,6 +18,11 @@ void Intake::Rollers::Disable()
 	m_intakeMotor.StopMotor();
 }
 
+frc2::CommandPtr Intake::Rollers::EnableCmd(double speed)
+{
+	return this->Run([this, speed] { this->Enable(speed); });
+}
+
 frc2::CommandPtr Intake::Rollers::EnableTimedCmd(double speed, units::second_t time)
 {
 	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time).AndThen(std::move(DisableCmd()));
@@ -43,6 +48,11 @@ Intake::Lift::Lift() :
 	m_encoder.SetDistancePerPulse(360.0 * kLiftRatio / kLiftEncoderCPR);
 }
 
+void Intake::Lift::DriveRaw(double speed)
+{
+	m_liftMotor.Set(speed);
+}
+
 units::degree_t Intake::Lift::GetMeasurement()
 {
 	return units::degree_t(m_encoder.GetDistance());
@@ -66,13 +76,13 @@ frc2::CommandPtr Intake::Lift::StowCmd()
 
 frc2::CommandPtr Intake::Lift::HomeCmd()
 {
-	return this->RunOnce([this] { this->Disable(); })	// Disable automatic PID control
+	return this->RunOnce([this] { this->Disable(); })		// Disable automatic PID control
 		.AndThen(this->RunEnd(
-			[this] { this->m_liftMotor.Set(-0.2); },	// Run the motor slowly
-			[this] {									// Reset the encoder and resume PID control
-				this->m_encoder.Reset();
-				this->Enable();
+			[this] { this->m_liftMotor.Set(kHomeSpeed); },	// Run the motor slowly
+			[this] {										// Once homed
+				this->m_encoder.Reset();	// Reset encoders
+				this->Enable();				// Resume PID control
 			}
-		).Until([this] { return m_limitSwitch.Get(); })	// Stop once we hit the limit switch
+		).Until([this] { return m_limitSwitch.Get(); })		// Stop once we hit the limit switch
 	);
 }

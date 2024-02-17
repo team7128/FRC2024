@@ -28,6 +28,7 @@ private:
 		void Enable(double speed);
 		void Disable();
 
+		frc2::CommandPtr EnableCmd(double speed);
 		frc2::CommandPtr EnableTimedCmd(double speed, units::second_t time);
 		frc2::CommandPtr DisableCmd();
 
@@ -41,6 +42,8 @@ private:
 
 	public:
 		Lift();
+
+		void DriveRaw(double speed);
 
 		frc2::CommandPtr DeployCmd();
 		frc2::CommandPtr StowCmd();

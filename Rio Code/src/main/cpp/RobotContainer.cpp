@@ -16,6 +16,17 @@
 RobotContainer::RobotContainer()
 	: m_subsystems(Subsystems::GetInstance())
 {
+	// Set shooter to not run when not in use
+	m_subsystems.shooterSub.SetDefaultCommand(m_subsystems.shooterSub.DisableCmd());
+
+	m_subsystems.intakeSub.m_rollerSub.SetDefaultCommand(m_subsystems.intakeSub.m_rollerSub.DisableCmd());
+
+	// Configure the button bindings
+	ConfigureBindings();
+}
+
+void RobotContainer::ConfigureBindings()
+{
 	// Initialize all of your commands and subsystems here
 	m_subsystems.robotDriveSub.SetDefaultCommand(frc2::RunCommand([this] {
 			m_subsystems.robotDriveSub.ArcadeDrive(
@@ -27,19 +38,19 @@ RobotContainer::RobotContainer()
 		{ &m_subsystems.robotDriveSub }
 	));
 
-	// Set shooter to not run when not in use
-	m_subsystems.shooterSub.SetDefaultCommand(m_subsystems.shooterSub.DisableCmd());
+	m_subsystems.intakeSub.m_liftSub.SetDefaultCommand(frc2::RunCommand([this] {
+			m_subsystems.intakeSub.m_liftSub.DriveRaw(-m_driverController.GetRightY());
+		},
+		{ &m_subsystems.intakeSub.m_liftSub }
+	));
 
-	// Configure the button bindings
-	ConfigureBindings();
-}
-
-void RobotContainer::ConfigureBindings()
-{
 	// Configure your trigger bindings here
 
 	m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.08));
 	m_driverController.B().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.50));
+
+	m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(-0.5));
+	m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(0.5));
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
