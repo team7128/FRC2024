@@ -1,5 +1,7 @@
 #include "subsystems/Intake.h"
 
+#include <frc/shuffleboard/Shuffleboard.h>
+
 #include "Constants.h"
 
 using namespace IntakeConstants;
@@ -46,6 +48,13 @@ Intake::Lift::Lift() :
 	m_feedforward(kS, kG, kV)
 {
 	m_encoder.SetDistancePerPulse(360.0 * kLiftRatio / kLiftEncoderCPR);
+
+	auto &tab = frc::Shuffleboard::GetTab("Main");
+	tab.Add("Intake encoder", m_encoder);
+
+	// Creates and schedules the home command to run when the robot first enables
+	m_homeCmd = HomeCmd();
+	// m_homeCmd->Schedule();	// TODO: uncomment
 }
 
 void Intake::Lift::DriveRaw(double speed)
@@ -78,11 +87,12 @@ frc2::CommandPtr Intake::Lift::HomeCmd()
 {
 	return this->RunOnce([this] { this->Disable(); })		// Disable automatic PID control
 		.AndThen(this->RunEnd(
-			[this] { this->m_liftMotor.Set(kHomeSpeed); },	// Run the motor slowly
-			[this] {										// Once homed
-				this->m_encoder.Reset();	// Reset encoders
-				this->Enable();				// Resume PID control
-			}
-		).Until([this] { return m_limitSwitch.Get(); })		// Stop once we hit the limit switch
-	);
+				[this] { this->m_liftMotor.Set(kHomeSpeed); },	// Run the motor slowly
+				[this] {	// Once the limit switch is hit
+					this->m_liftMotor.StopMotor();	// Stop the motor
+					this->m_encoder.Reset();		// Reset encoders
+					this->Enable();					// Resume PID control
+				}
+			).Until([this] { return m_limitSwitch.Get(); })		// Stop once we hit the limit switch
+		).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);	// Ensure the home command has priority over others
 }

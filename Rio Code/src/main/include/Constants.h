@@ -45,28 +45,39 @@ namespace HardwareConstants
 */
 namespace CANConstants
 {
+	/// Victor SPX CAN IDs
+
 	///	Motor controller IDs for drivebase motors
 	inline constexpr int kDrivebaseMotorIDs[4] = {
-		1,	// Front right motor
-		2,	// Back right motor
-		3,	// Front left motor
-		4	// Back left motor
+		1,	// Front left motor
+		2,	// Back left motor
+		3,	// Front right motor
+		4	// Back right motor
 	};
-	///	@brief Talon SRX CAN ID for intake roller (indexer) motor
-	inline constexpr int kIntakeRollerTalonID = 5;
 
 	/// @brief Victor SPX CAN ID for intake lift motor
-	inline constexpr int kIntakeLiftVictorID = 6;
+	inline constexpr int kIntakeLiftVictorID = 5;
 
-	/// Talon SRX CAN ID for amp ramp motor
-	inline constexpr int kAmpRampTalonID = 7;
+	/// @brief Victor SPX CAN IDs for climb motors
+	inline constexpr int kClimbVictorIDs[2] = {
+		6,	// Left climb motor
+		7	// Right climb motor
+	};
 
-	// Spark MAX controllers have separate IDs to CTRE controllers
+	/// Talon SRX CAN IDs
+
+	///	@brief Talon SRX CAN ID for intake roller (indexer) motor
+	inline constexpr int kIntakeRollerTalonID = 1;
+
+	/// @brief Talon SRX CAN ID for amp ramp motor
+	inline constexpr int kAmpRampTalonID = 2;
+
+	// Spark MAX CAN IDs
 
 	///	Spark MAX IDs for shooter motors
 	inline constexpr int kShooterSparkIDs[2] = {
-		1,	// Left Spark
-		2	// Right Spark
+		1,	// Left NEO
+		2	// Right NEO
 	};
 }	// namespace CANConstants
 
@@ -147,11 +158,13 @@ namespace IntakeConstants
 
 	/// @brief Homing speed
 	inline constexpr double kHomeSpeed = -0.2;
+	
 	/**
 	 * @brief Homed angle of the arm
 	 * this is measured clockwise from the horizontal
 	*/
 	inline constexpr units::degree_t kHomeAngle = 148_deg;
+
 	/**
 	 * @brief Deploy angle for the intake
 	 * Intake resets to 0 upon homing, so this is measured from the home position
@@ -163,10 +176,10 @@ namespace IntakeConstants
 	inline constexpr units::degrees_per_second_squared_t kMaxAccel = 2000_deg_per_s_sq;
 
 	/// Intake lift PID constants
-	inline double kP = 5.0;
+	inline double kP = 1.0;
 
 	/// Intake lift arm feedforward constants
-	inline units::volt_t kS = 0.0_V;
+	inline units::volt_t kS = 0.05_V;
 	inline units::volt_t kG = 0.42_V;
 	inline units::unit_t<frc::ArmFeedforward::kv_unit> kV{ 0.02 };
 }

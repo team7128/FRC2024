@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <frc/Encoder.h>
 #include <frc/DigitalInput.h>
 #include <frc/controller/ArmFeedforward.h>
@@ -57,6 +59,8 @@ private:
 		frc::Encoder m_encoder;
 		frc::DigitalInput m_limitSwitch;
 		frc::ArmFeedforward m_feedforward;
+		/// @brief Holds the home command that runs at the start of the match
+		std::optional<frc2::CommandPtr> m_homeCmd;
 	};
 	
 public:

@@ -14,11 +14,11 @@
 
 using namespace DriveConstants;
 
-RobotDrive::RobotDrive()
-	: m_motorFR(CANConstants::kDrivebaseMotorIDs[0]),
-	m_motorBR(CANConstants::kDrivebaseMotorIDs[1]),
-	m_motorFL(CANConstants::kDrivebaseMotorIDs[2]),
-	m_motorBL(CANConstants::kDrivebaseMotorIDs[3]),
+RobotDrive::RobotDrive() :
+	m_motorFR(CANConstants::kDrivebaseMotorIDs[2]),
+	m_motorBR(CANConstants::kDrivebaseMotorIDs[3]),
+	m_motorFL(CANConstants::kDrivebaseMotorIDs[0]),
+	m_motorBL(CANConstants::kDrivebaseMotorIDs[1]),
 	m_diffDrive(m_motorFL, m_motorFR),
 	m_diffDriveKinematics(kWheelbaseWidth),
 	m_odometry{ frc::Rotation2d(0_deg), 0_m, 0_m }

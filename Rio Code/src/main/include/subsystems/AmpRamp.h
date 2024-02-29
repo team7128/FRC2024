@@ -1,9 +1,12 @@
 #pragma once
 
+#include <optional>
+
 #include <frc/DoubleSolenoid.h>
 #include <frc/DigitalInput.h>
 
 #include <frc2/command/SubsystemBase.h>
+#include <frc2/command/CommandPtr.h>
 
 #include <ctre/phoenix/motorcontrol/can/WPI_TalonSRX.h>
 
@@ -22,6 +25,8 @@ public:
 private:
 	frc::DigitalInput m_limitSwitch;
 	ctre::phoenix::motorcontrol::can::WPI_TalonSRX m_motorController;
+	/// @brief Holds the homing command that will run at the start of the match
+	std::optional<frc2::CommandPtr> m_homeCmd;
 
 	frc2::CommandPtr GoToAngleCmd(units::degree_t angle, units::degree_t deadzone);
 };

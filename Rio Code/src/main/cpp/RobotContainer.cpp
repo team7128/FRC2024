@@ -46,11 +46,11 @@ void RobotContainer::ConfigureBindings()
 
 	// Configure your trigger bindings here
 
-	m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.08));
-	m_driverController.B().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.50));
+	m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.15));
+	m_driverController.B().WhileTrue(m_subsystems.shooterSub.EnableCmd(1.0));
 
-	m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(-0.5));
-	m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(0.5));
+	m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(-1.0));
+	m_driverController.RightBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(1.0));
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()

@@ -9,6 +9,7 @@ Shooter::Shooter() :
 	m_shooterLeft(CANConstants::kShooterSparkIDs[0], rev::CANSparkMaxLowLevel::MotorType::kBrushless),
 	m_shooterRight(CANConstants::kShooterSparkIDs[1], rev::CANSparkMaxLowLevel::MotorType::kBrushless)
 {
+	m_shooterLeft.SetInverted(true);
 	m_shooterRight.Follow(m_shooterLeft, true);
 }
 
