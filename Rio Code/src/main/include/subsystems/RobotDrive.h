@@ -56,20 +56,84 @@ public:
 	 * IMPORTANT: Only call this when nothing else is running, as it will reset encoders and gyro and will likely break any commands using them directly.
 	*/
 	void ResetPosition();
+
+	/**
+	 * @brief Externally change the positon of the drivebase
+	 * 
+	 * @param position 
+	 */
 	inline void UpdatePosition(frc::Pose2d position) { m_position = position; }
+
+	/// @brief Position getter
 	inline frc::Pose2d GetPosition() const { return m_position; }
 
+	/**
+	 * @brief Drive in a straight line for a set distance.
+	 * Creates a command to drive forward/backwards by a specified distance.
+	 *
+	 * @param distance The distance to drive. Can be positive or negative.
+	 * @return The distance drive command.
+	 */
 	frc2::CommandPtr DriveDistanceCmd(units::meter_t distance);
 
+	/**
+	 * @brief Face a specific angle.
+	 * Creates a command to face a specific direction relative to the field.
+	 * 
+	 * @param angle Direction to face.
+	 * @return Turn command.
+	 */
 	frc2::CommandPtr TurnToAngleCmd(units::degree_t angle);
+	/**
+	 * @brief Turn drivebase by an angle.
+	 * Creates a command to turn by a set angle.
+	 * 
+	 * @param angle Angle to turn by. Positive is left.
+	 * @return Turn command.
+	 */
 	frc2::CommandPtr TurnByAngleCmd(units::degree_t angle);
+	/**
+	 * @brief Turn to face a point on the field.
+	 * Creates a command to face a specific point on the field.
+	 * 
+	 * @param fieldX Field point X coordinate.
+	 * @param fieldY Field point Y coordinate.
+	 * @return Face point command.
+	 */
 	frc2::CommandPtr FacePointCmd(units::meter_t fieldX, units::meter_t fieldY);
 
+	/**
+	 * @brief Go to a specified point on the field.
+	 * Creates a command to navigate to a point on the field. Turns first, then drives to the target point.
+	 * Optinally, can stop some distance before the target point.
+	 * 
+	 * @param fieldX Target point X coordinate.
+	 * @param fieldY Target point Y coordinate.
+	 * @param stopDistance Optinal distance to stop before the target point.
+	 * @return Go to point command.
+	 */
 	frc2::CommandPtr GoToPointCmd(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance = 0_m);
 	
+	/**
+	 * @brief Configures drive controller.
+	 * Sets the deadzone of a drive controller.
+	 * 
+	 * @param controller A ProfiledPIDController with meters as units.
+	 */
 	static void ConfigureDriveController(frc::ProfiledPIDController<units::meters> &controller);
+	/**
+	 * @brief Configures a turn controller.
+	 * Sets the deadzone of a turn controller and enables continuous values.
+	 * 
+	 * @param controller A ProfiledPIDController with degrees as units.
+	 */
 	static void ConfigureTurnController(frc::ProfiledPIDController<units::degrees> &controller);
 
+	/**
+	 * @brief Holds all components for position tracking
+	 * Holds drivebase encoders and gyro. Also holds the relevant sim objects.
+	 * Has basic functions for getting values and resetting component readings.
+	 */
 	struct OdometryComponents
 	{
 		AHRS m_gyro;
@@ -106,9 +170,11 @@ private:
 	/// Handles limiting wheel speeds to reasonable values
 	frc::DifferentialDriveKinematics m_diffDriveKinematics;
 
+	/// Position tracking
 	frc::Pose2d m_position;
 	frc::DifferentialDriveOdometry m_odometry;
 
+	/// Sim drivebase
 	frc::sim::DifferentialDrivetrainSim m_driveSim{
 		frc::DCMotor::CIM(2),
 		7.29,
@@ -119,6 +185,9 @@ private:
 	};
 
 	frc::Field2d m_field;
+
+	// HERE BE DRAGONS
+	// All the classes required to implement drivebase auto commands
 
 	class DriveDistanceCmd_t : public frc2::CommandHelper<frc2::ProfiledPIDCommand<units::meters>, DriveDistanceCmd_t>
 	{

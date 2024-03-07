@@ -47,6 +47,7 @@ private:
 
 		void DriveRaw(double speed);
 
+		frc2::CommandPtr DisableCmd();
 		frc2::CommandPtr DeployCmd();
 		frc2::CommandPtr StowCmd();
 		frc2::CommandPtr HomeCmd();

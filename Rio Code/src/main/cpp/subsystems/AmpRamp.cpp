@@ -14,29 +14,31 @@ AmpRamp::AmpRamp() :
 {
 	m_motorController.ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder);
 
+	// AmpRamp encoder count shuffleboard
 	auto &tab = frc::Shuffleboard::GetTab("Main");
 	tab.AddNumber("AmpRamp encoder value", [this] {
 		return this->m_motorController.GetSelectedSensorPosition();
 	});
+	// adds AmpRamp encoder angle to shuffleboard
 	tab.AddNumber("AmpRamp encoder angle", [this] {
 		return this->m_motorController.GetSelectedSensorPosition() / HardwareConstants::kVersaEncoderCPR * 360.f;
 	});
 
 	// Constructs and schedules the home command to run when the robot becomes enabled
-	m_homeCmd = HomeCmd();
+	// m_homeCmd = HomeCmd();
 	//m_homeCmd->Schedule();	// TODO: uncomment
 }
-
+//deploy AmpRamp
 frc2::CommandPtr AmpRamp::DeployCmd()
 {
 	return GoToAngleCmd(kDeployAngle, 2_deg);
 }
-
+//pull in AmpRamp
 frc2::CommandPtr AmpRamp::StowCmd()
 {
 	return GoToAngleCmd(kStowAngle, 2_deg);
 }
-
+//move AmpRamp to "home", reset encoder
 frc2::CommandPtr AmpRamp::HomeCmd()
 {
 	return this->Run([this] { this->m_motorController.Set(-0.2); })

@@ -14,6 +14,7 @@
 
 using namespace DriveConstants;
 
+//drive base can IDs
 RobotDrive::RobotDrive() :
 	m_motorFR(CANConstants::kDrivebaseMotorIDs[2]),
 	m_motorBR(CANConstants::kDrivebaseMotorIDs[3]),
@@ -23,12 +24,15 @@ RobotDrive::RobotDrive() :
 	m_diffDriveKinematics(kWheelbaseWidth),
 	m_odometry{ frc::Rotation2d(0_deg), 0_m, 0_m }
 {
+	// Invert right side of drivebase
 	m_motorFR.SetInverted(true);
 	m_motorBR.SetInverted(true);
 
+	// Back motors follow front motors
 	m_motorBR.Follow(m_motorFR);
 	m_motorBL.Follow(m_motorFL);
 
+	// Place a drivebase and field widget on the Shuffleboard
 	auto &tab = frc::Shuffleboard::GetTab("Main");
 	tab.Add(m_diffDrive);
 	tab.Add(m_field);
@@ -36,6 +40,7 @@ RobotDrive::RobotDrive() :
 
 void RobotDrive::Periodic()
 {
+	// Update internal position and upload it to the field widget
 	m_position = m_odometry.Update(m_odometryComponents.GetAngle(), m_odometryComponents.GetLeftDistance(), m_odometryComponents.GetRightDistance());
 	m_field.SetRobotPose(m_position);
 }
@@ -58,6 +63,7 @@ void RobotDrive::SimulationPeriodic()
 
 void RobotDrive::ArcadeDrive(units::meters_per_second_t velocity, units::degrees_per_second_t rotational, bool squareInputs)
 {
+	// Convert forward/rotational speed to wheel velocities
 	auto wheelSpeeds = m_diffDriveKinematics.ToWheelSpeeds({ velocity, 0_mps, rotational });
 	wheelSpeeds.Desaturate(kMaxWheelSpeed);
 

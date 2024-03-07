@@ -32,5 +32,6 @@ private:
 		OperatorConstants::kDriverControllerPort
 	};
 
+	/// @brief Configures all controller bindings
 	void ConfigureBindings();
 };

@@ -21,6 +21,10 @@ RobotContainer::RobotContainer()
 
 	m_subsystems.intakeSub.m_rollerSub.SetDefaultCommand(m_subsystems.intakeSub.m_rollerSub.DisableCmd());
 
+	m_subsystems.intakeSub.m_liftSub.SetDefaultCommand(m_subsystems.intakeSub.m_liftSub.DisableCmd());
+
+	//m_subsystems.climbSub.SetDefaultCommand(m_climbSub.DisableCmd());
+
 	// Configure the button bindings
 	ConfigureBindings();
 }
@@ -38,12 +42,6 @@ void RobotContainer::ConfigureBindings()
 		{ &m_subsystems.robotDriveSub }
 	));
 
-	m_subsystems.intakeSub.m_liftSub.SetDefaultCommand(frc2::RunCommand([this] {
-			m_subsystems.intakeSub.m_liftSub.DriveRaw(-m_driverController.GetRightY());
-		},
-		{ &m_subsystems.intakeSub.m_liftSub }
-	));
-
 	// Configure your trigger bindings here
 
 	m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.15));
@@ -51,6 +49,9 @@ void RobotContainer::ConfigureBindings()
 
 	m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(-1.0));
 	m_driverController.RightBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(1.0));
+
+	m_driverController.LeftTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.DriveRaw(-0.7); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
+	m_driverController.RightTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.DriveRaw(0.7); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()

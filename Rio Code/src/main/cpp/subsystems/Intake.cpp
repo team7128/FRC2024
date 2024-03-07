@@ -19,7 +19,7 @@ void Intake::Rollers::Disable()
 {
 	m_intakeMotor.StopMotor();
 }
-
+// creates a command to enable intake rollers
 frc2::CommandPtr Intake::Rollers::EnableCmd(double speed)
 {
 	return this->Run([this, speed] { this->Enable(speed); });
@@ -53,13 +53,18 @@ Intake::Lift::Lift() :
 	tab.Add("Intake encoder", m_encoder);
 
 	// Creates and schedules the home command to run when the robot first enables
-	m_homeCmd = HomeCmd();
+	// m_homeCmd = HomeCmd();
 	// m_homeCmd->Schedule();	// TODO: uncomment
 }
 
 void Intake::Lift::DriveRaw(double speed)
 {
 	m_liftMotor.Set(speed);
+}
+
+frc2::CommandPtr Intake::Lift::DisableCmd()
+{
+	return this->Run([this] { this->Disable(); });
 }
 
 units::degree_t Intake::Lift::GetMeasurement()
@@ -85,6 +90,7 @@ frc2::CommandPtr Intake::Lift::StowCmd()
 
 frc2::CommandPtr Intake::Lift::HomeCmd()
 {
+	this;
 	return this->RunOnce([this] { this->Disable(); })		// Disable automatic PID control
 		.AndThen(this->RunEnd(
 				[this] { this->m_liftMotor.Set(kHomeSpeed); },	// Run the motor slowly
