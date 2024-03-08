@@ -28,16 +28,29 @@ AmpRamp::AmpRamp() :
 	// m_homeCmd = HomeCmd();
 	//m_homeCmd->Schedule();	// TODO: uncomment
 }
+
+void AmpRamp::Drive(double speed)
+{
+	m_motorController.Set(speed);
+}
+
+frc2::CommandPtr AmpRamp::StopCmd()
+{
+	return this->Run([this] { this->m_motorController.StopMotor(); });
+}
+
 //deploy AmpRamp
 frc2::CommandPtr AmpRamp::DeployCmd()
 {
 	return GoToAngleCmd(kDeployAngle, 2_deg);
 }
+
 //pull in AmpRamp
 frc2::CommandPtr AmpRamp::StowCmd()
 {
 	return GoToAngleCmd(kStowAngle, 2_deg);
 }
+
 //move AmpRamp to "home", reset encoder
 frc2::CommandPtr AmpRamp::HomeCmd()
 {

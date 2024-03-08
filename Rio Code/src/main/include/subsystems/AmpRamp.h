@@ -16,6 +16,10 @@ class AmpRamp : public frc2::SubsystemBase
 {
 public:
 	AmpRamp();
+	
+
+	void Drive(double speed);
+	frc2::CommandPtr StopCmd();
 
 	/**
 	 * @brief Deploys the amp ramp.

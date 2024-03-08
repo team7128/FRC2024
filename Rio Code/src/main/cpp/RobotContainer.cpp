@@ -18,6 +18,8 @@ RobotContainer::RobotContainer()
 {
 	// Set shooter to not run when not in use
 	m_subsystems.shooterSub.SetDefaultCommand(m_subsystems.shooterSub.DisableCmd());
+	
+	m_subsystems.ampRampSub.SetDefaultCommand(m_subsystems.ampRampSub.StopCmd());
 
 	m_subsystems.intakeSub.m_rollerSub.SetDefaultCommand(m_subsystems.intakeSub.m_rollerSub.DisableCmd());
 
@@ -52,6 +54,16 @@ void RobotContainer::ConfigureBindings()
 
 	m_driverController.LeftTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.DriveRaw(-0.7); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
 	m_driverController.RightTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.DriveRaw(0.7); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
+
+	/*m_driverController.POVUp().WhileTrue(m_subsystems.climbSub.EnableCmd(-1.0));
+	m_driverController.POVDown().WhileTrue(m_subsystems.climbSub.EnableCmd(1.0));*/
+	
+	m_driverController.Y().WhileTrue(frc2::RunCommand([this] {
+			this->m_subsystems.ampRampSub.Drive(0.4);
+	}, { &m_subsystems.ampRampSub }).ToPtr());
+	m_driverController.X().WhileTrue(frc2::RunCommand([this] {
+			this->m_subsystems.ampRampSub.Drive(-0.4);
+	}, { &m_subsystems.ampRampSub }).ToPtr());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
