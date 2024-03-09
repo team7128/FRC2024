@@ -16,7 +16,6 @@ class AmpRamp : public frc2::SubsystemBase
 {
 public:
 	AmpRamp();
-	
 
 	void Drive(double speed);
 	frc2::CommandPtr StopCmd();
@@ -52,9 +51,6 @@ private:
 
 	/// Talon motor controller for the VersaPlanetary that drives the amp ramp
 	ctre::phoenix::motorcontrol::can::WPI_TalonSRX m_motorController;
-
-	/// @brief Holds the homing command that will run at the start of the match
-	std::optional<frc2::CommandPtr> m_homeCmd;
 
 	/**
 	 * @brief Moves the amp ramp to a specific angle.

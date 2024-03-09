@@ -2,6 +2,7 @@
 
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/InstantCommand.h>
+#include <frc2/command/WaitCommand.h>
 
 #include "Constants.h"
 
@@ -34,7 +35,7 @@ frc2::CommandPtr Shooter::EnableCmd(double speed)
 
 frc2::CommandPtr Shooter::EnableTimedCmd(double speed, units::second_t time)
 {
-	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time).AndThen(DisableCmd());
+	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time);
 }
 
 frc2::CommandPtr Shooter::DisableCmd()

@@ -38,7 +38,7 @@ namespace HardwareConstants
 {
 	/// Counts per revolution of versaplanetary encoders
 	/// DO NOT TOUCH
-	inline constexpr int kVersaEncoderCPR = 1024;
+	inline constexpr int kVersaEncoderCPR = 4096;
 }	// namespace HardwareConstants
 
 /**
@@ -165,26 +165,26 @@ namespace IntakeConstants
 	inline constexpr double kLiftRatio = 1.0 / 71.0 / (33.0 / 12.0);
 
 	/// @brief Homing speed
-	inline constexpr double kHomeSpeed = -0.2;
+	inline constexpr double kHomeSpeed = 0.5;
 	
 	/**
 	 * @brief Homed angle of the arm
 	 * This is measured clockwise from the horizontal
 	*/
-	inline constexpr units::degree_t kHomeAngle = 148_deg;
+	inline constexpr units::degree_t kHomeAngle = 40_deg;
 
 	/**
 	 * @brief Deploy angle for the intake
 	 * Intake resets to 0 upon homing, so this is measured from the home position
 	*/
-	inline constexpr units::degree_t kDeployAngle = 238_deg;
+	inline constexpr units::degree_t kDeployAngle = 170_deg;
 
 	/// Maximum velocity and acceleration for lifting the intake
 	inline constexpr units::degrees_per_second_t kMaxVel = 500_deg_per_s;
 	inline constexpr units::degrees_per_second_squared_t kMaxAccel = 2000_deg_per_s_sq;
 
 	/// Intake lift PID constants
-	inline constexpr double kP = 1.0;
+	inline constexpr double kP = 0.03;
 
 	/// Intake lift arm feedforward constants
 	inline constexpr units::volt_t kS = 0.1_V;
@@ -194,8 +194,12 @@ namespace IntakeConstants
 
 namespace AmpRampConstants
 {
+	inline constexpr double kP = 5.0;
+
+	inline constexpr double khomeSpeed = 0.4;
+
 	/// Amp ramp deploy and stow angles
-	inline constexpr units::degree_t kDeployAngle = 0_deg,
-		kStowAngle = 60_deg,
-		kHomeAngle = kStowAngle;
+	inline constexpr units::degree_t kDeployAngle = 60_deg,
+		kStowAngle = -70_deg,
+		kHomeAngle = -90_deg;
 }

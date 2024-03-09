@@ -12,10 +12,17 @@ public:
      * @brief Drives the climb arms with the specified speeds
      * For all speeds, negative is down, positive is up
      * 
-     * @param leftSpeed Speed of left climb arm
-     * @param rightSpeed Speed of right climb arm
+     * @param speed Speed of climb arms
      */
-    void Drive(double leftSpeed, double rightSpeed);
+    void Drive(double speed);
+
+    /**
+     * @brief Constructs a command to move the climb arms
+     * 
+     * @param speed Climb arms speed
+     * @return The climb drive command
+     */
+    frc2::CommandPtr DriveCmd(double speed);
 
     /**
      * @brief Generates a command to stop the climb motors

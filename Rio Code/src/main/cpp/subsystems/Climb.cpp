@@ -6,13 +6,18 @@ Climb::Climb() :
     m_leftClimbMotor(CANConstants::kClimbVictorIDs[0]),
     m_rightClimbMotor(CANConstants::kClimbVictorIDs[1])
 {
-    m_rightClimbMotor.SetInverted(true);
+    m_leftClimbMotor.SetInverted(true);
 }
 
-void Climb::Drive(double leftSpeed, double rightSpeed)
+void Climb::Drive(double speed)
 {
-    m_leftClimbMotor.Set(leftSpeed);
-    m_rightClimbMotor.Set(rightSpeed);
+    m_rightClimbMotor.Set(speed);
+	m_leftClimbMotor.Set(speed);
+}
+
+frc2::CommandPtr Climb::DriveCmd(double speed)
+{
+	return this->Run([this, speed] { this->Drive(speed); });
 }
 
 frc2::CommandPtr Climb::StopCmd()

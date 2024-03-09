@@ -6,6 +6,7 @@
 #include "Shooter.h"
 #include "Intake.h"
 #include "AmpRamp.h"
+#include "Climb.h"
 
 struct Subsystems
 {
@@ -16,4 +17,5 @@ public:
 	Shooter shooterSub;
 	Intake intakeSub;
 	AmpRamp ampRampSub;
+	Climb climbSub;
 };

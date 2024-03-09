@@ -12,6 +12,8 @@
 #include <frc2/command/InstantCommand.h>
 
 #include "commands/Autos.h"
+#include "commands/ShooterCommands.h"
+#include "commands/IntakeCommands.h"
 
 RobotContainer::RobotContainer()
 	: m_subsystems(Subsystems::GetInstance())
@@ -23,9 +25,9 @@ RobotContainer::RobotContainer()
 
 	m_subsystems.intakeSub.m_rollerSub.SetDefaultCommand(m_subsystems.intakeSub.m_rollerSub.DisableCmd());
 
-	m_subsystems.intakeSub.m_liftSub.SetDefaultCommand(m_subsystems.intakeSub.m_liftSub.DisableCmd());
+	// m_subsystems.intakeSub.m_liftSub.SetDefaultCommand(m_subsystems.intakeSub.m_liftSub.DisableCmd());
 
-	//m_subsystems.climbSub.SetDefaultCommand(m_climbSub.DisableCmd());
+	m_subsystems.climbSub.SetDefaultCommand(m_subsystems.climbSub.StopCmd());
 
 	// Configure the button bindings
 	ConfigureBindings();
@@ -46,28 +48,45 @@ void RobotContainer::ConfigureBindings()
 
 	// Configure your trigger bindings here
 
-	m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.15));
-	m_driverController.B().WhileTrue(m_subsystems.shooterSub.EnableCmd(1.0));
+	// m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.1));
+	// m_driverController.B().WhileTrue(m_subsystems.shooterSub.EnableCmd(1.0));
 
-	m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(-1.0));
-	m_driverController.RightBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(1.0));
+	// Experimental shooter sequence commands
+	m_driverController.A().OnTrue(std::move(ShootSequence(0.12)));
+	m_driverController.B().OnTrue(std::move(ShootSequence(1.0)));
 
-	m_driverController.LeftTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.DriveRaw(-0.7); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
-	m_driverController.RightTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.DriveRaw(0.7); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
+	// m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(1.0));
+	// m_driverController.RightBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(-1.0));
 
-	/*m_driverController.POVUp().WhileTrue(m_subsystems.climbSub.EnableCmd(-1.0));
-	m_driverController.POVDown().WhileTrue(m_subsystems.climbSub.EnableCmd(1.0));*/
+	// m_driverController.LeftTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.Drive(-this->m_driverController.GetLeftTriggerAxis()); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
+	// m_driverController.RightTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.Drive(this->m_driverController.GetRightTriggerAxis()); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
+
+	// m_driverController.LeftTrigger().OnTrue(m_subsystems.intakeSub.m_liftSub.StowCmd());
+	// m_driverController.RightTrigger().OnTrue(m_subsystems.intakeSub.m_liftSub.DeployCmd());
+
+	// Experimental intake sequence commands
+	m_driverController.LeftBumper().OnTrue(std::move(IntakeDeploySequence()));
+	m_driverController.LeftBumper().OnFalse(std::move(IntakeStowSequence()));
+
+	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 0; }).WhileTrue(m_subsystems.climbSub.DriveCmd(0.35));
+	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 180; }).WhileTrue(m_subsystems.climbSub.DriveCmd(-0.35));
 	
-	m_driverController.Y().WhileTrue(frc2::RunCommand([this] {
+	/*m_driverController.Y().WhileTrue(frc2::RunCommand([this] {
 			this->m_subsystems.ampRampSub.Drive(0.4);
 	}, { &m_subsystems.ampRampSub }).ToPtr());
 	m_driverController.X().WhileTrue(frc2::RunCommand([this] {
 			this->m_subsystems.ampRampSub.Drive(-0.4);
-	}, { &m_subsystems.ampRampSub }).ToPtr());
+	}, { &m_subsystems.ampRampSub }).ToPtr());*/
+
+	m_driverController.Y().OnTrue(m_subsystems.ampRampSub.DeployCmd());
+	m_driverController.X().OnTrue(m_subsystems.ampRampSub.StowCmd());
+
+	m_driverController.Start().OnTrue(m_subsystems.ampRampSub.HomeCmd());
+	m_driverController.Back().OnTrue(m_subsystems.intakeSub.m_liftSub.HomeCmd());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
 {
 	// Simple testing auto to drive around a bit
-	return autos::TestAuto();
+	return autos::BasicAuto();
 }

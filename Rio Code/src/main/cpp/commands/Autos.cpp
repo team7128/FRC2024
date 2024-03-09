@@ -2,13 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include "commands/Autos.h"
+
 #include <frc2/command/Commands.h>
-#include <frc2/command/InstantCommand.h>
 
 #include <vector>
 
-#include "commands/Autos.h"
 #include "subsystems/Subsystems.h"
+
+#include "commands/ShooterCommands.h"
 
 frc2::CommandPtr autos::InitAuto()
 {
@@ -19,6 +21,18 @@ frc2::CommandPtr autos::InitAuto()
 	initCommands.push_back(subsystems.intakeSub.m_liftSub.HomeCmd());
 
 	return frc2::cmd::Parallel(std::move(initCommands));
+}
+
+frc2::CommandPtr autos::BasicAuto()
+{
+	Subsystems &subsystems = Subsystems::GetInstance();
+	std::vector<frc2::CommandPtr> autoSequence;
+	// autoSequence.push_back(InitAuto());
+
+	autoSequence.push_back(ShootSequence(1.0));
+	autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2.5_m));
+
+	return frc2::cmd::Sequence(std::move(autoSequence));
 }
 
 frc2::CommandPtr autos::TestAuto()

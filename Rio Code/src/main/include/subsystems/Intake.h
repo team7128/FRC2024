@@ -45,7 +45,7 @@ private:
 	public:
 		Lift();
 
-		void DriveRaw(double speed);
+		void Drive(double speed);
 
 		frc2::CommandPtr DisableCmd();
 		frc2::CommandPtr DeployCmd();

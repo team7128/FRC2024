@@ -12,7 +12,9 @@ AmpRamp::AmpRamp() :
 	m_limitSwitch(DIOConstants::kAmpRampSwitchPort),
 	m_motorController(CANConstants::kAmpRampTalonID)
 {
+	// Set the Talon to use the VersaPlanetary encoder
 	m_motorController.ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder);
+	m_motorController.Config_kP(0, kP);
 
 	// AmpRamp encoder count shuffleboard
 	auto &tab = frc::Shuffleboard::GetTab("Main");
@@ -23,10 +25,7 @@ AmpRamp::AmpRamp() :
 	tab.AddNumber("AmpRamp encoder angle", [this] {
 		return this->m_motorController.GetSelectedSensorPosition() / HardwareConstants::kVersaEncoderCPR * 360.f;
 	});
-
-	// Constructs and schedules the home command to run when the robot becomes enabled
-	// m_homeCmd = HomeCmd();
-	//m_homeCmd->Schedule();	// TODO: uncomment
+	tab.Add("AmpRamp limit switch", m_limitSwitch);
 }
 
 void AmpRamp::Drive(double speed)
@@ -54,8 +53,10 @@ frc2::CommandPtr AmpRamp::StowCmd()
 //move AmpRamp to "home", reset encoder
 frc2::CommandPtr AmpRamp::HomeCmd()
 {
-	return this->Run([this] { this->m_motorController.Set(-0.2); })
+	return this->Run([this] { this->m_motorController.Set(khomeSpeed); })
 		.Until([this] { return this->m_limitSwitch.Get(); })
+		.AndThen(this->Run([this] { this->m_motorController.Set(-khomeSpeed); }))
+		.Until([this] { return !this->m_limitSwitch.Get(); })
 		.AndThen([this] {
 			this->m_motorController.StopMotor();
 			this->m_motorController.SetSelectedSensorPosition(kHomeAngle.value() / 360.f * HardwareConstants::kVersaEncoderCPR);
@@ -66,5 +67,5 @@ frc2::CommandPtr AmpRamp::GoToAngleCmd(units::degree_t angle, units::degree_t de
 {
 	return this->Run([this, angle] {
 		this->m_motorController.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::Position, angle / 360.0_deg * HardwareConstants::kVersaEncoderCPR);
-	}).Until([this, deadzone] { return this->m_motorController.GetClosedLoopError() < deadzone / 360.0_deg * HardwareConstants::kVersaEncoderCPR; });
+	}).Until([this, deadzone] { return std::abs(this->m_motorController.GetClosedLoopError()) < deadzone / 360.0_deg * HardwareConstants::kVersaEncoderCPR; });
 }
