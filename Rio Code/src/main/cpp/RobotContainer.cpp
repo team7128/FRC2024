@@ -61,6 +61,7 @@ void RobotContainer::ConfigureBindings()
 	// Bind climb down to POV (D-pad) down
 	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 180; }).WhileTrue(m_subsystems.climbSub.DriveCmd(-0.35));
 
+	m_driverController.A().OnTrue(m_subsystems.intakeSub.m_liftSub.ClimbCmd());
 
 	// ----- Shooter Controls -----
 
