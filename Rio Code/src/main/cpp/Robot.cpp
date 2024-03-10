@@ -6,8 +6,11 @@
 
 #include <frc2/command/CommandScheduler.h>
 
+#include "commands/GeneralCommands.h"
+
 void Robot::RobotInit()
 {
+	m_homeCommand = HomeAllCmd();
 }
 
 /**
@@ -40,7 +43,8 @@ void Robot::DisabledPeriodic() {}
 void Robot::DisabledExit()
 {
 	m_container.m_subsystems.robotDriveSub.ResetPosition();
-	// Subsystems::GetInstance().odometrySub.ResetEncoders();
+
+	m_homeCommand.Schedule();
 }
 
 /**
@@ -49,15 +53,13 @@ void Robot::DisabledExit()
  */
 void Robot::AutonomousInit()
 {
-	m_autonomousCommand = m_container.GetAutonomousCommand();
+	m_autonomousCommand = m_container.GetAutonomousCommand().BeforeStarting(HomeAllCmd());
 
 	if (m_autonomousCommand)
 	{
-		wpi::outs() << "Initiating auto.\n";
+		m_homeCommand.Cancel();
 		m_autonomousCommand->Schedule();
 	}
-
-	wpi::outs().flush();
 }
 
 void Robot::AutonomousPeriodic()

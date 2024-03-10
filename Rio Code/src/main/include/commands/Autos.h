@@ -7,9 +7,6 @@
 #include <frc2/command/CommandPtr.h>
 
 namespace autos {
-	// Initializes (homes) all subsystems
-	frc2::CommandPtr InitAuto();
-
 	frc2::CommandPtr BasicAuto();
 
 	frc2::CommandPtr TestAuto();

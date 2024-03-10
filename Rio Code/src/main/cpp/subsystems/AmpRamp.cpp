@@ -53,19 +53,21 @@ frc2::CommandPtr AmpRamp::StowCmd()
 //move AmpRamp to "home", reset encoder
 frc2::CommandPtr AmpRamp::HomeCmd()
 {
-	return this->Run([this] { this->m_motorController.Set(khomeSpeed); })
+	return this->Run([this] { this->m_motorController.Set(khomeSpeed); })	// Back away from the switch in case it is already pressed
 		.Until([this] { return this->m_limitSwitch.Get(); })
-		.AndThen(this->Run([this] { this->m_motorController.Set(-khomeSpeed); }))
-		.Until([this] { return !this->m_limitSwitch.Get(); })
+		.AndThen(this->Run([this] { this->m_motorController.Set(-khomeSpeed); })	// Lower until the limit switch is hit
+		.Until([this] { return !this->m_limitSwitch.Get(); }))
 		.AndThen([this] {
 			this->m_motorController.StopMotor();
-			this->m_motorController.SetSelectedSensorPosition(kHomeAngle.value() / 360.f * HardwareConstants::kVersaEncoderCPR);
-	}).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);	// Ensure that the home command has priority over other commands
+			this->m_motorController.SetSelectedSensorPosition(kHomeAngle / 360_deg * HardwareConstants::kVersaEncoderCPR);
+	});
+	//.WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);	// Ensure that the home command has priority over other commands
 }
 
 frc2::CommandPtr AmpRamp::GoToAngleCmd(units::degree_t angle, units::degree_t deadzone)
 {
-	return this->Run([this, angle] {
-		this->m_motorController.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::Position, angle / 360.0_deg * HardwareConstants::kVersaEncoderCPR);
-	}).Until([this, deadzone] { return std::abs(this->m_motorController.GetClosedLoopError()) < deadzone / 360.0_deg * HardwareConstants::kVersaEncoderCPR; });
+	return this->RunOnce([this, angle] {
+		this->m_motorController.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::Position, angle / 360_deg * HardwareConstants::kVersaEncoderCPR);
+	});
+	//.Until([this, deadzone] { return std::abs(this->m_motorController.GetClosedLoopError()) < deadzone / 360_deg * HardwareConstants::kVersaEncoderCPR; });
 }

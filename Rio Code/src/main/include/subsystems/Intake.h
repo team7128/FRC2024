@@ -45,11 +45,44 @@ private:
 	public:
 		Lift();
 
+		/**
+		 * @brief Manually drives the intake
+		 * 
+		 * @param speed Intake speed. Positive is deploy, negative is stow.
+		 */
 		void Drive(double speed);
 
-		frc2::CommandPtr DisableCmd();
+		/**
+		 * @brief Automatically moves the intake to deploy position
+		 * 
+		 * @return Deploy command
+		 */
 		frc2::CommandPtr DeployCmd();
+		/**
+		 * @brief Automatically moves the intake to stow position
+		 * 
+		 * @return Stow command
+		 */
 		frc2::CommandPtr StowCmd();
+		/**
+		 * @brief Automatically moves intake to climb position.
+		 * Moves the intake into the climb position and disables automatic PID control.
+		 * 
+		 * @return Climb command 
+		 */
+		frc2::CommandPtr ClimbCmd();
+		/**
+		 * @brief Stops the intake from moving
+		 * 
+		 * @return Disable command 
+		 */
+		frc2::CommandPtr DisableCmd();
+		/**
+		 * @brief Homes the intake.
+		 * IMPORTANT: This must run first before any other intake functions.
+		 * 
+		 * @return Home command 
+		 */
 		frc2::CommandPtr HomeCmd();
 
 		virtual units::degree_t GetMeasurement() override;
@@ -59,9 +92,6 @@ private:
 		ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_liftMotor;
 		frc::Encoder m_encoder;
 		frc::DigitalInput m_limitSwitch;
-		frc::ArmFeedforward m_feedforward;
-		/// @brief Holds the home command that runs at the start of the match
-		std::optional<frc2::CommandPtr> m_homeCmd;
 	};
 	
 public:

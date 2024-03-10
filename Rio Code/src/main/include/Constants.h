@@ -28,6 +28,7 @@
 namespace OperatorConstants
 {
 	inline constexpr int kDriverControllerPort = 0;
+	inline constexpr int kShooterControllerPort = 1;
 
 	///	Max driving and turn speeds for teleop players
 	inline constexpr units::meters_per_second_t kMaxTeleopSpeed = 2_mps;
@@ -179,17 +180,18 @@ namespace IntakeConstants
 	*/
 	inline constexpr units::degree_t kDeployAngle = 170_deg;
 
+	/**
+	 * @brief Angle of intake to lock in climb arms
+	 * This is measured from the home position, not vertical or horizontal
+	 */
+	inline constexpr units::degree_t kClimbAngle = 40_deg;
+
 	/// Maximum velocity and acceleration for lifting the intake
 	inline constexpr units::degrees_per_second_t kMaxVel = 500_deg_per_s;
 	inline constexpr units::degrees_per_second_squared_t kMaxAccel = 2000_deg_per_s_sq;
 
 	/// Intake lift PID constants
-	inline constexpr double kP = 0.03;
-
-	/// Intake lift arm feedforward constants
-	inline constexpr units::volt_t kS = 0.1_V;
-	inline constexpr units::volt_t kG = 0.42_V;
-	inline constexpr units::unit_t<frc::ArmFeedforward::kv_unit> kV{ 0.02 };
+	inline constexpr double kP = 0.04;
 }
 
 namespace AmpRampConstants

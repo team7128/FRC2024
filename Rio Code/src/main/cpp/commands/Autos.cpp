@@ -12,22 +12,10 @@
 
 #include "commands/ShooterCommands.h"
 
-frc2::CommandPtr autos::InitAuto()
-{
-	Subsystems &subsystems = Subsystems::GetInstance();
-	std::vector<frc2::CommandPtr> initCommands;
-
-	initCommands.push_back(subsystems.ampRampSub.HomeCmd());
-	initCommands.push_back(subsystems.intakeSub.m_liftSub.HomeCmd());
-
-	return frc2::cmd::Parallel(std::move(initCommands));
-}
-
 frc2::CommandPtr autos::BasicAuto()
 {
 	Subsystems &subsystems = Subsystems::GetInstance();
 	std::vector<frc2::CommandPtr> autoSequence;
-	// autoSequence.push_back(InitAuto());
 
 	autoSequence.push_back(ShootSequence(1.0));
 	autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2.5_m));
@@ -39,7 +27,6 @@ frc2::CommandPtr autos::TestAuto()
 {
 	Subsystems &subsystems = Subsystems::GetInstance();
 	std::vector<frc2::CommandPtr> autoSequence;
-	autoSequence.push_back(InitAuto());
 
 	// autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2_m));
 	// autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(90_deg));

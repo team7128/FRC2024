@@ -47,10 +47,10 @@ Intake::Lift::Lift() :
 	),
 	m_liftMotor(CANConstants::kIntakeLiftVictorID),
 	m_limitSwitch(DIOConstants::kIntakeLimitSwitchPort),
-	m_encoder(DIOConstants::kIntakeLiftEncoderPorts[0], DIOConstants::kIntakeLiftEncoderPorts[1]),
-	m_feedforward(kS, kG, kV)
+	m_encoder(DIOConstants::kIntakeLiftEncoderPorts[0], DIOConstants::kIntakeLiftEncoderPorts[1])
 {
 	m_encoder.SetDistancePerPulse(-360.0 * kLiftRatio / kLiftEncoderCPR);
+	m_controller.SetTolerance(5_deg);
 
 	auto &tab = frc::Shuffleboard::GetTab("Main");
 	tab.Add("Intake encoder", m_encoder);
@@ -69,41 +69,52 @@ frc2::CommandPtr Intake::Lift::DisableCmd()
 
 units::degree_t Intake::Lift::GetMeasurement()
 {
-	// wpi::outs() << "Lift measurement got.\n";
-	// wpi::outs().flush();
 	return units::degree_t(m_encoder.GetDistance());
 }
 
 void Intake::Lift::UseOutput(double output, State setpoint)
 {
-	// wpi::outs() << "Driving intake lift: " << std::to_string(output) << ".\n";
-	// wpi::outs().flush();
-	// m_liftMotor.SetVoltage(m_feedforward.Calculate(units::degree_t(m_encoder.GetDistance()) - kHomeAngle, units::degrees_per_second_t(output)));
 	m_liftMotor.Set(-output);
 }
 
 frc2::CommandPtr Intake::Lift::DeployCmd()
 {
-	return this->RunOnce([this] { this->SetGoal(kDeployAngle); });
+	return this->Run([this] {
+		this->SetGoal(kDeployAngle);
+		this->Enable();
+	}).Until([this] { return this->m_controller.AtGoal(); });
 }
 
 frc2::CommandPtr Intake::Lift::StowCmd()
 {
 	// Run to 0 degrees, as this is where the intake homes to
-	return this->RunOnce([this] { this->SetGoal(0_deg);	});
+	return this->Run([this] {
+			this->SetGoal(0_deg);
+			this->Enable();
+		}).Until([this] { return this->m_controller.AtGoal(); });
+}
+
+frc2::CommandPtr Intake::Lift::ClimbCmd()
+{
+	// Move intake to climb position, then disable automatic PID control so the intake is not fighting the chain once it is hanging
+	return this->Run([this] {
+			this->SetGoal(kClimbAngle);
+			this->Enable();
+		}).Until([this] { return this->m_controller.AtGoal(); })
+		.AndThen(this->RunOnce([this] { this->Disable(); }));
 }
 
 frc2::CommandPtr Intake::Lift::HomeCmd()
 {
-	return this->RunOnce([this] { this->Disable(); })		// Disable automatic PID control
-		.AndThen(this->Run([this] { Drive(-kHomeSpeed); }))			// Drive the intake up until no longer contacting the limit switch
-		.Until([this] { return this->m_limitSwitch.Get(); })
-		.AndThen(this->Run([this] { this->m_liftMotor.Set(kHomeSpeed); }))	// Run the motor slowly
-		.Until([this] { return !m_limitSwitch.Get(); })		// Stop once we hit the limit switch
+	return this->RunOnce([this] { this->Disable(); })	// Disable automatic PID control
+		.AndThen(this->Run([this] { Drive(-kHomeSpeed); })	// Drive the intake up until no longer contacting the limit switch
+			.Until([this] { return this->m_limitSwitch.Get(); }))
+		.AndThen(this->Run([this] { this->m_liftMotor.Set(kHomeSpeed); })	// Run the motor slowly
+			.Until([this] { return !m_limitSwitch.Get(); }))	// Stop once we hit the limit switch
 		.AndThen(this->RunOnce([this] {	// Once the limit switch is hit
-			this->m_encoder.Reset();		// Reset encoders
-			this->Enable();					// Resume PID control
-			this->SetGoal(0_deg);
+			this->m_encoder.Reset();	// Reset encoders
+			this->SetGoal(0_deg);		// Set goal to homed position
+			this->Enable();				// Resume PID control
 		}));
 		// .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);	// Ensure the home command has priority over others
 }

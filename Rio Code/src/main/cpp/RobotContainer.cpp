@@ -21,7 +21,7 @@ RobotContainer::RobotContainer()
 	// Set shooter to not run when not in use
 	m_subsystems.shooterSub.SetDefaultCommand(m_subsystems.shooterSub.DisableCmd());
 	
-	m_subsystems.ampRampSub.SetDefaultCommand(m_subsystems.ampRampSub.StopCmd());
+	// m_subsystems.ampRampSub.SetDefaultCommand(m_subsystems.ampRampSub.StopCmd());
 
 	m_subsystems.intakeSub.m_rollerSub.SetDefaultCommand(m_subsystems.intakeSub.m_rollerSub.DisableCmd());
 
@@ -29,13 +29,20 @@ RobotContainer::RobotContainer()
 
 	m_subsystems.climbSub.SetDefaultCommand(m_subsystems.climbSub.StopCmd());
 
+	m_climbModeTrigger = frc2::Trigger([this] { return this->m_climbMode; });
+
+	// Extend the intake when beginning climb
+	m_climbModeTrigger.OnTrue(m_subsystems.intakeSub.m_liftSub.DeployCmd());
+	// Pull in the intake if we ever exit climb mode
+	m_climbModeTrigger.OnFalse(m_subsystems.intakeSub.m_liftSub.StowCmd());
+
 	// Configure the button bindings
 	ConfigureBindings();
 }
 
 void RobotContainer::ConfigureBindings()
 {
-	// Initialize all of your commands and subsystems here
+	// ----- Driver Controls -----
 	m_subsystems.robotDriveSub.SetDefaultCommand(frc2::RunCommand([this] {
 			m_subsystems.robotDriveSub.ArcadeDrive(
 				-m_driverController.GetLeftY() * OperatorConstants::kMaxTeleopSpeed,
@@ -45,44 +52,43 @@ void RobotContainer::ConfigureBindings()
 		},
 		{ &m_subsystems.robotDriveSub }
 	));
-
-	// Configure your trigger bindings here
-
-	// m_driverController.A().WhileTrue(m_subsystems.shooterSub.EnableCmd(0.1));
-	// m_driverController.B().WhileTrue(m_subsystems.shooterSub.EnableCmd(1.0));
-
-	// Experimental shooter sequence commands
-	m_driverController.A().OnTrue(std::move(ShootSequence(0.12)));
-	m_driverController.B().OnTrue(std::move(ShootSequence(1.0)));
-
-	// m_driverController.LeftBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(1.0));
-	// m_driverController.RightBumper().WhileTrue(m_subsystems.intakeSub.m_rollerSub.EnableCmd(-1.0));
-
-	// m_driverController.LeftTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.Drive(-this->m_driverController.GetLeftTriggerAxis()); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
-	// m_driverController.RightTrigger().WhileTrue(frc2::RunCommand([this] { this->m_subsystems.intakeSub.m_liftSub.Drive(this->m_driverController.GetRightTriggerAxis()); }, { &m_subsystems.intakeSub.m_liftSub}).ToPtr());
-
-	// m_driverController.LeftTrigger().OnTrue(m_subsystems.intakeSub.m_liftSub.StowCmd());
-	// m_driverController.RightTrigger().OnTrue(m_subsystems.intakeSub.m_liftSub.DeployCmd());
-
-	// Experimental intake sequence commands
-	m_driverController.LeftBumper().OnTrue(std::move(IntakeDeploySequence()));
-	m_driverController.LeftBumper().OnFalse(std::move(IntakeStowSequence()));
-
-	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 0; }).WhileTrue(m_subsystems.climbSub.DriveCmd(0.35));
-	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 180; }).WhileTrue(m_subsystems.climbSub.DriveCmd(-0.35));
 	
-	/*m_driverController.Y().WhileTrue(frc2::RunCommand([this] {
-			this->m_subsystems.ampRampSub.Drive(0.4);
-	}, { &m_subsystems.ampRampSub }).ToPtr());
-	m_driverController.X().WhileTrue(frc2::RunCommand([this] {
-			this->m_subsystems.ampRampSub.Drive(-0.4);
-	}, { &m_subsystems.ampRampSub }).ToPtr());*/
+	// Bind climb up to POV (D-pad) up
+	// This also enters climb mode, removing the shooter's control of the intake
+	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 0; })
+		.WhileTrue(m_subsystems.climbSub.DriveCmd(0.35))
+		.OnTrue(frc2::InstantCommand([this] { this->m_climbMode = true; }).ToPtr());
+	// Bind climb down to POV (D-pad) down
+	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 180; }).WhileTrue(m_subsystems.climbSub.DriveCmd(-0.35));
 
-	m_driverController.Y().OnTrue(m_subsystems.ampRampSub.DeployCmd());
-	m_driverController.X().OnTrue(m_subsystems.ampRampSub.StowCmd());
 
-	m_driverController.Start().OnTrue(m_subsystems.ampRampSub.HomeCmd());
-	m_driverController.Back().OnTrue(m_subsystems.intakeSub.m_liftSub.HomeCmd());
+	// ----- Shooter Controls -----
+
+	// Shooter sequence commands
+	// A for amp shot (also deploys AmpRamp)
+	// B for speaker shot
+	m_shooterController.A().OnTrue(AmpSequence(0.12));
+	m_shooterController.B().OnTrue(ShootSequence(1.0));
+
+	// Intake sequence commands, left bumper
+	// Deploys and intakes while held, retracts when released
+	// IMPORTANT NOTE: loses control once climb has begun
+	m_shooterController.LeftBumper().OnTrue(std::move(IntakeDeploySequence().Unless([this] { return this->m_climbMode; })));
+	m_shooterController.LeftBumper().OnFalse(std::move(IntakeStowSequence().Unless([this] { return this->m_climbMode; })));
+
+	// Exit climb mode, START button
+	// Emergency button to get back intake control if climb mode gets entered early
+	// Make sure that the climb arms are out of the way if you press this
+	m_shooterController.Start().OnTrue(frc2::InstantCommand([this] { this->m_climbMode = false; }).ToPtr());
+	
+	// AmpRamp controls
+	// Y to raise
+	// X to lower
+	// m_shooterController.Y().OnTrue(m_subsystems.ampRampSub.DeployCmd());
+	// m_shooterController.X().OnTrue(m_subsystems.ampRampSub.StowCmd());
+
+	// m_driverController.Start().OnTrue(m_subsystems.ampRampSub.HomeCmd());
+	// m_driverController.Back().OnTrue(m_subsystems.intakeSub.m_liftSub.HomeCmd());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()

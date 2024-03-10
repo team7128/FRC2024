@@ -30,7 +30,14 @@ public:
 private:
 	frc2::CommandXboxController m_driverController{
 		OperatorConstants::kDriverControllerPort
+	}, m_shooterController{
+		OperatorConstants::kShooterControllerPort
 	};
+
+	/// @brief Keeps track of whether we are doing climb
+	bool m_climbMode = false;
+
+	frc2::Trigger m_climbModeTrigger;
 
 	/// @brief Configures all controller bindings
 	void ConfigureBindings();

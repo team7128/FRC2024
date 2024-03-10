@@ -34,6 +34,8 @@ private:
 	std::optional<frc2::CommandPtr> m_autonomousCommand;
 
 	RobotContainer m_container;
+
+	// The command to home all components that require it
+	// Runs automatically when robot exits disabled
+	frc2::CommandPtr m_homeCommand;
 };
-// but i did other things
-//this is test, ignore
