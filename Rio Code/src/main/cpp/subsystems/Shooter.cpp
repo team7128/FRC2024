@@ -30,15 +30,15 @@ void Shooter::Disable()
 
 frc2::CommandPtr Shooter::EnableCmd(double speed)
 {
-	return this->Run([this, speed] { this->Enable(speed); });
+	return this->Run([this, speed] { this->Enable(speed); }).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::EnableTimedCmd(double speed, units::second_t time)
 {
-	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time);
+	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::DisableCmd()
 {
-	return this->Run([this] { this->Disable(); });
+	return this->RunOnce([this] { this->Disable(); });
 }

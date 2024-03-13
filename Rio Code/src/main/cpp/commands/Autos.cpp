@@ -4,6 +4,8 @@
 
 #include "commands/Autos.h"
 
+#include <frc/DriverStation.h>
+
 #include <frc2/command/Commands.h>
 
 #include <vector>
@@ -12,13 +14,78 @@
 
 #include "commands/ShooterCommands.h"
 
-frc2::CommandPtr autos::BasicAuto()
+frc2::CommandPtr autos::BasicAuto(StartLocation startLocation)
 {
 	Subsystems &subsystems = Subsystems::GetInstance();
 	std::vector<frc2::CommandPtr> autoSequence;
 
-	autoSequence.push_back(ShootSequence(1.0));
-	autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2.5_m));
+	autoSequence.push_back(ShootSequence(1));
+
+	if (startLocation == StartLocation::Center)
+	{
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2_m));
+	}
+	else
+	{
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1_m));
+
+		if (startLocation == StartLocation::Left)
+		{
+			autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(-60_deg));
+		}
+		else
+		{
+			autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(60_deg));
+		}
+
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1.5_m));
+	}
+
+
+	return frc2::cmd::Sequence(std::move(autoSequence));
+}
+
+frc2::CommandPtr autos::CompAuto(AutoPreset preset)
+{
+	Subsystems &subsystems = Subsystems::GetInstance();
+	std::vector<frc2::CommandPtr> autoSequence;
+
+	if (preset == AutoPreset::None)
+		return frc2::cmd::None();
+
+	if (preset == AutoPreset::Mobility)
+		return subsystems.robotDriveSub.DriveDistanceCmd(1.5_m);
+
+	if (preset == AutoPreset::SpeakerCenter)
+	{
+		autoSequence.push_back(ShootSequence(1));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+	}
+
+	if (preset == AutoPreset::SpeakerLeft)
+	{
+		autoSequence.push_back(ShootSequence(1));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1_m));
+		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(60_deg));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+	}
+
+	if (preset == AutoPreset::SpeakerLeft)
+	{
+		autoSequence.push_back(ShootSequence(1));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1_m));
+		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(-60_deg));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+	}
+	
+	if (preset == AutoPreset::Custom)
+	{
+		// ===== Set up custom auto here: =====
+		// Append to the autoSequence vector
+
+
+
+	}
 
 	return frc2::cmd::Sequence(std::move(autoSequence));
 }

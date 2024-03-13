@@ -114,13 +114,13 @@ frc2::CommandPtr RobotDrive::GoToPointCmd(units::meter_t fieldX, units::meter_t 
 
 void RobotDrive::ConfigureDriveController(frc::ProfiledPIDController<units::meters> &controller)
 {
-	controller.SetTolerance(10_cm, 0.3_mps);
+	controller.SetTolerance(5_cm, 0.1_mps);
 }
 
 void RobotDrive::ConfigureTurnController(frc::ProfiledPIDController<units::degrees> &controller)
 {
 	controller.EnableContinuousInput(0_deg, 360_deg);
-	controller.SetTolerance(3_deg, 20_deg_per_s);
+	controller.SetTolerance(2_deg, 20_deg_per_s);
 }
 
 RobotDrive::OdometryComponents::OdometryComponents() :

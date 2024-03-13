@@ -3,6 +3,8 @@
 #include <frc/shuffleboard/Shuffleboard.h>
 
 #include <frc2/command/InstantCommand.h>
+#include <frc2/command/WaitCommand.h>
+#include <frc2/command/WaitUntilCommand.h>
 
 #include "Constants.h"
 
@@ -68,6 +70,6 @@ frc2::CommandPtr AmpRamp::GoToAngleCmd(units::degree_t angle, units::degree_t de
 {
 	return this->RunOnce([this, angle] {
 		this->m_motorController.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::Position, angle / 360_deg * HardwareConstants::kVersaEncoderCPR);
-	});
-	//.Until([this, deadzone] { return std::abs(this->m_motorController.GetClosedLoopError()) < deadzone / 360_deg * HardwareConstants::kVersaEncoderCPR; });
+	}).AndThen(frc2::WaitCommand(208_ms).ToPtr())	// Wait a short moment before reading amp angle from Talon, since the CAN takes a moment to update everything
+	.AndThen(frc2::WaitUntilCommand([this, deadzone] { return std::abs(this->m_motorController.GetClosedLoopError()) < deadzone / 360_deg * HardwareConstants::kVersaEncoderCPR; }).ToPtr());
 }

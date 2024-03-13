@@ -10,6 +10,9 @@
 #include <frc2/command/ProfiledPIDSubsystem.h>
 #include <frc2/command/CommandPtr.h>
 
+#include <units/time.h>
+#include <units/angle.h>
+
 #include <rev/CANSparkMax.h>
 #include <ctre/phoenix/motorcontrol/can/WPI_TalonSRX.h>
 #include <ctre/phoenix/motorcontrol/can/WPI_VictorSPX.h>
@@ -92,6 +95,15 @@ private:
 		ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_liftMotor;
 		frc::Encoder m_encoder;
 		frc::DigitalInput m_limitSwitch;
+
+		/**
+		 * @brief Moves intake to specified angle
+		 * Creates a command to move the intake to an angle, then disables PID control.
+		 * 
+		 * @param angle Target angle (measured from home position)
+		 * @return Go to angle command
+		 */
+		frc2::CommandPtr GoToAngleCmd(units::degree_t angle);
 	};
 	
 public:

@@ -7,7 +7,26 @@
 #include <frc2/command/CommandPtr.h>
 
 namespace autos {
-	frc2::CommandPtr BasicAuto();
+	enum StartLocation
+	{
+		Center,
+		Left,
+		Right
+	};
+
+	enum AutoPreset
+	{
+		None,
+		Mobility,
+		SpeakerCenter,
+		SpeakerLeft,
+		SpeakerRight,
+		Custom
+	};
+
+	frc2::CommandPtr BasicAuto(StartLocation);
+
+	frc2::CommandPtr CompAuto(AutoPreset preset);
 
 	frc2::CommandPtr TestAuto();
 }  // namespace autos

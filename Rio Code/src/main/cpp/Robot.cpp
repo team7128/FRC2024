@@ -23,8 +23,6 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-	// wpi::outs() << "Testing prints.\n";
-
 	frc2::CommandScheduler::GetInstance().Run();
 }
 
@@ -42,9 +40,9 @@ void Robot::DisabledPeriodic() {}
 
 void Robot::DisabledExit()
 {
-	m_container.m_subsystems.robotDriveSub.ResetPosition();
+	m_container.Reset();
 
-	m_homeCommand.Schedule();
+	m_homeCommand->Schedule();
 }
 
 /**
@@ -57,7 +55,7 @@ void Robot::AutonomousInit()
 
 	if (m_autonomousCommand)
 	{
-		m_homeCommand.Cancel();
+		m_homeCommand->Cancel();
 		m_autonomousCommand->Schedule();
 	}
 }

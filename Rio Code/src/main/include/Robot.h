@@ -37,5 +37,5 @@ private:
 
 	// The command to home all components that require it
 	// Runs automatically when robot exits disabled
-	frc2::CommandPtr m_homeCommand;
+	std::optional<frc2::CommandPtr> m_homeCommand;
 };

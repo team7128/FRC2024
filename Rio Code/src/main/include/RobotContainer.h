@@ -4,9 +4,14 @@
 
 #pragma once
 
+#include <cameraserver/CameraServer.h>
+
+#include <frc/smartdashboard/SendableChooser.h>
+
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandXboxController.h>
 
+#include "commands/Autos.h"
 #include "Constants.h"
 #include "subsystems/Subsystems.h"
 
@@ -21,6 +26,8 @@ class RobotContainer
 {
 public:
 	RobotContainer();
+
+	void Reset();
 
 	frc2::CommandPtr GetAutonomousCommand();
 
@@ -38,6 +45,16 @@ private:
 	bool m_climbMode = false;
 
 	frc2::Trigger m_climbModeTrigger;
+
+	bool m_reverseDriving = false;
+	cs::UsbCamera m_forwardCamera, m_backwardCamera;
+	cs::VideoSink m_cameraSink;
+
+	// frc::SendableChooser<autos::StartLocation> m_autoChooser;
+	frc::SendableChooser<autos::AutoPreset> m_autoChooser;
+
+	/// @brief Configures all camera related code
+	void ConfigureCameras();
 
 	/// @brief Configures all controller bindings
 	void ConfigureBindings();

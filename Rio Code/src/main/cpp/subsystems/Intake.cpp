@@ -2,6 +2,8 @@
 
 #include <frc/shuffleboard/Shuffleboard.h>
 
+#include <frc2/command/WaitUntilCommand.h>
+
 #include "Constants.h"
 
 using namespace IntakeConstants;
@@ -25,17 +27,17 @@ void Intake::Rollers::Disable()
 // creates a command to enable intake rollers
 frc2::CommandPtr Intake::Rollers::EnableCmd(double speed)
 {
-	return this->Run([this, speed] { this->Enable(speed); });
+	return this->Run([this, speed] { this->Enable(speed); }).FinallyDo([this] { this->Disable(); });
 }
 
 frc2::CommandPtr Intake::Rollers::EnableTimedCmd(double speed, units::second_t time)
 {
-	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time);
+	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Intake::Rollers::DisableCmd()
 {
-	return this->Run([this] { this->Disable(); });
+	return this->RunOnce([this] { this->Disable(); });
 }
 
 Intake::Lift::Lift() :
@@ -64,7 +66,7 @@ void Intake::Lift::Drive(double speed)
 
 frc2::CommandPtr Intake::Lift::DisableCmd()
 {
-	return this->Run([this] { this->Disable(); });
+	return this->RunOnce([this] { this->m_liftMotor.StopMotor(); });
 }
 
 units::degree_t Intake::Lift::GetMeasurement()
@@ -79,29 +81,19 @@ void Intake::Lift::UseOutput(double output, State setpoint)
 
 frc2::CommandPtr Intake::Lift::DeployCmd()
 {
-	return this->Run([this] {
-		this->SetGoal(kDeployAngle);
-		this->Enable();
-	}).Until([this] { return this->m_controller.AtGoal(); });
+	return GoToAngleCmd(kDeployAngle);
 }
 
 frc2::CommandPtr Intake::Lift::StowCmd()
 {
 	// Run to 0 degrees, as this is where the intake homes to
-	return this->Run([this] {
-			this->SetGoal(0_deg);
-			this->Enable();
-		}).Until([this] { return this->m_controller.AtGoal(); });
+	return GoToAngleCmd(0_deg);
 }
 
 frc2::CommandPtr Intake::Lift::ClimbCmd()
 {
 	// Move intake to climb position, then disable automatic PID control so the intake is not fighting the chain once it is hanging
-	return this->Run([this] {
-			this->SetGoal(kClimbAngle);
-			this->Enable();
-		}).Until([this] { return this->m_controller.AtGoal(); })
-		.AndThen(this->RunOnce([this] { this->Disable(); }));
+	return GoToAngleCmd(kClimbAngle);
 }
 
 frc2::CommandPtr Intake::Lift::HomeCmd()
@@ -110,12 +102,20 @@ frc2::CommandPtr Intake::Lift::HomeCmd()
 		.AndThen(this->Run([this] { Drive(-kHomeSpeed); })	// Drive the intake up until no longer contacting the limit switch
 			.Until([this] { return this->m_limitSwitch.Get(); }))
 		.AndThen(this->Run([this] { this->m_liftMotor.Set(kHomeSpeed); })	// Run the motor slowly
-			.Until([this] { return !m_limitSwitch.Get(); }))	// Stop once we hit the limit switch
+			.Until([this] { return !this->m_limitSwitch.Get(); }))	// Stop once we hit the limit switch
 		.AndThen(this->RunOnce([this] {	// Once the limit switch is hit
 			this->m_encoder.Reset();	// Reset encoders
-			this->SetGoal(0_deg);		// Set goal to homed position
-			this->Enable();				// Resume PID control
+			// this->SetGoal(0_deg);		// Set goal to homed position
+			// this->Enable();				// Resume PID control
 		}));
 		// .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);	// Ensure the home command has priority over others
 }
-				
+
+frc2::CommandPtr Intake::Lift::GoToAngleCmd(units::degree_t angle)
+{
+	return this->RunOnce([this, angle] {
+			this->SetGoal(angle);
+			this->Enable();
+		}).AndThen(frc2::WaitUntilCommand([this] { return this->m_controller.AtGoal(); }).ToPtr())
+		.AndThen(this->RunOnce([this] { this->Disable(); }));
+}
