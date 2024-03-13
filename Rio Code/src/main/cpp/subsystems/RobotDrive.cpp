@@ -120,7 +120,7 @@ void RobotDrive::ConfigureDriveController(frc::ProfiledPIDController<units::mete
 void RobotDrive::ConfigureTurnController(frc::ProfiledPIDController<units::degrees> &controller)
 {
 	controller.EnableContinuousInput(0_deg, 360_deg);
-	controller.SetTolerance(2_deg, 20_deg_per_s);
+	controller.SetTolerance(5_deg, 50_deg_per_s);
 }
 
 RobotDrive::OdometryComponents::OdometryComponents() :

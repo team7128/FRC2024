@@ -18,6 +18,7 @@ namespace autos {
 	{
 		None,
 		Mobility,
+		SpeakerShot,
 		SpeakerCenter,
 		SpeakerLeft,
 		SpeakerRight,

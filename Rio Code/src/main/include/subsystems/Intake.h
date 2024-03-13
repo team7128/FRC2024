@@ -56,6 +56,15 @@ private:
 		void Drive(double speed);
 
 		/**
+		 * @brief 
+		 * 
+		 * @param speed Positive is deploy, negative is stow 
+		 * @param time 
+		 * @return frc2::CommandPtr 
+		 */
+		frc2::CommandPtr DriveTimedCmd(double speed, units::second_t time);
+
+		/**
 		 * @brief Automatically moves the intake to deploy position
 		 * 
 		 * @return Deploy command
@@ -74,6 +83,7 @@ private:
 		 * @return Climb command 
 		 */
 		frc2::CommandPtr ClimbCmd();
+		frc2::CommandPtr ClimbIdleCmd();
 		/**
 		 * @brief Stops the intake from moving
 		 * 

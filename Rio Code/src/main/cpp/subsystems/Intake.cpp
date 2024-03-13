@@ -61,7 +61,13 @@ Intake::Lift::Lift() :
 
 void Intake::Lift::Drive(double speed)
 {
+	Disable();
 	m_liftMotor.Set(speed);
+}
+
+frc2::CommandPtr Intake::Lift::DriveTimedCmd(double speed, units::second_t time)
+{
+	return this->Run([this, speed] { this->Drive(speed); }).WithTimeout(time);
 }
 
 frc2::CommandPtr Intake::Lift::DisableCmd()
@@ -96,6 +102,11 @@ frc2::CommandPtr Intake::Lift::ClimbCmd()
 	return GoToAngleCmd(kClimbAngle);
 }
 
+frc2::CommandPtr Intake::Lift::ClimbIdleCmd()
+{
+	return GoToAngleCmd(kClimbIdleAngle);
+}
+
 frc2::CommandPtr Intake::Lift::HomeCmd()
 {
 	return this->RunOnce([this] { this->Disable(); })	// Disable automatic PID control
@@ -116,6 +127,5 @@ frc2::CommandPtr Intake::Lift::GoToAngleCmd(units::degree_t angle)
 	return this->RunOnce([this, angle] {
 			this->SetGoal(angle);
 			this->Enable();
-		}).AndThen(frc2::WaitUntilCommand([this] { return this->m_controller.AtGoal(); }).ToPtr())
-		.AndThen(this->RunOnce([this] { this->Disable(); }));
+		}).AndThen(frc2::WaitUntilCommand([this] { return this->m_controller.AtGoal(); }).ToPtr());
 }

@@ -8,9 +8,9 @@ frc2::CommandPtr ShootSequence(double speed)
 {
     Subsystems &subsystems = Subsystems::GetInstance();
 
-    return subsystems.shooterSub.EnableTimedCmd(speed, 2_s)
+    return subsystems.shooterSub.EnableTimedCmd(speed, 3_s)
 		.DeadlineWith(
-			frc2::WaitCommand(1100_ms).ToPtr().AndThen(
+			frc2::WaitCommand(1.8_s).ToPtr().AndThen(
 				subsystems.intakeSub.m_rollerSub.EnableCmd(-1.0)
 		));
 }

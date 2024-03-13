@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <math.h>
+
 #include <units/length.h>
 #include <units/velocity.h>
 #include <units/acceleration.h>
@@ -124,21 +126,21 @@ namespace DriveConstants
 	inline constexpr units::meters_per_second_t kMaxWheelSpeed = 4_mps;
 
 	///	PID values for forward/back driving PID controllers
-	inline constexpr double kDriveP = 2.5,
-		kDriveI = 0.0,
-		kDriveD = 0.2;
+	inline constexpr double kDriveP = 4.0,
+		kDriveI = 0.05,
+		kDriveD = 0.5;
 
 	///	Max velocity/acceleration for forward/back driving in auto
-	inline constexpr units::meters_per_second_t kMaxDriveVel = 4_mps;
-	inline constexpr units::meters_per_second_squared_t kMaxDriveAccel = 20_mps_sq;
+	inline constexpr units::meters_per_second_t kMaxDriveVel = 3_mps;
+	inline constexpr units::meters_per_second_squared_t kMaxDriveAccel = 30_mps_sq;
 
 	/// DO NOT EDIT THIS
 	inline const frc::ProfiledPIDController<units::meters> kAutoDriveController{ kDriveP, kDriveI, kDriveD, { kMaxDriveVel, kMaxDriveAccel } };
 
 	///	PID values for turning PID controllers
-	inline constexpr double kTurnP = 5.0,
-		kTurnI = 0.5,
-		kTurnD = 0.2;
+	inline constexpr double kTurnP = 12.0,
+		kTurnI = 0.4,
+		kTurnD = 0.8;
 
 	///	Max velocity/acceleration for turning in auto
 	inline constexpr units::degrees_per_second_t kMaxTurnVel = 500_deg_per_s;
@@ -166,7 +168,7 @@ namespace IntakeConstants
 	inline constexpr double kLiftRatio = 1.0 / 71.0 / (33.0 / 12.0);
 
 	/// @brief Homing speed
-	inline constexpr double kHomeSpeed = 0.3;
+	inline constexpr double kHomeSpeed = 0.4;
 	
 	/**
 	 * @brief Homed angle of the arm
@@ -186,9 +188,11 @@ namespace IntakeConstants
 	 */
 	inline constexpr units::degree_t kClimbAngle = 25_deg;
 
+	inline constexpr units::degree_t kClimbIdleAngle = 55_deg;
+
 	/// Maximum velocity and acceleration for lifting the intake
 	inline constexpr units::degrees_per_second_t kMaxVel = 400_deg_per_s;
-	inline constexpr units::degrees_per_second_squared_t kMaxAccel = 2000_deg_per_s_sq;
+	inline constexpr units::degrees_per_second_squared_t kMaxAccel = 400_deg_per_s_sq;
 
 	/// Intake lift PID constants
 	inline constexpr double kP = 0.04;

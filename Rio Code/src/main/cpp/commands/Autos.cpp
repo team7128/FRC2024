@@ -41,7 +41,6 @@ frc2::CommandPtr autos::BasicAuto(StartLocation startLocation)
 		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1.5_m));
 	}
 
-
 	return frc2::cmd::Sequence(std::move(autoSequence));
 }
 
@@ -54,28 +53,31 @@ frc2::CommandPtr autos::CompAuto(AutoPreset preset)
 		return frc2::cmd::None();
 
 	if (preset == AutoPreset::Mobility)
-		return subsystems.robotDriveSub.DriveDistanceCmd(1.5_m);
+		return subsystems.robotDriveSub.DriveDistanceCmd(1_m);
+
+	if (preset == AutoPreset::SpeakerShot)
+		return ShootSequence(1);
 
 	if (preset == AutoPreset::SpeakerCenter)
 	{
 		autoSequence.push_back(ShootSequence(1));
-		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2_m));
 	}
 
 	if (preset == AutoPreset::SpeakerLeft)
 	{
 		autoSequence.push_back(ShootSequence(1));
-		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1_m));
-		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(60_deg));
-		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1.5_m));
+		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(-30_deg));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2_m));
 	}
 
-	if (preset == AutoPreset::SpeakerLeft)
+	if (preset == AutoPreset::SpeakerRight)
 	{
 		autoSequence.push_back(ShootSequence(1));
-		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1_m));
-		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(-60_deg));
-		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(3_m));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(0.5_m));
+		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(30_deg));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(2_m));
 	}
 	
 	if (preset == AutoPreset::Custom)

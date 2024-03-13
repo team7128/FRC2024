@@ -46,15 +46,7 @@ private:
 
 	frc2::Trigger m_climbModeTrigger;
 
-	bool m_reverseDriving = false;
-	cs::UsbCamera m_forwardCamera, m_backwardCamera;
-	cs::VideoSink m_cameraSink;
-
-	// frc::SendableChooser<autos::StartLocation> m_autoChooser;
 	frc::SendableChooser<autos::AutoPreset> m_autoChooser;
-
-	/// @brief Configures all camera related code
-	void ConfigureCameras();
 
 	/// @brief Configures all controller bindings
 	void ConfigureBindings();

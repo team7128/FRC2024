@@ -18,6 +18,6 @@ frc2::CommandPtr IntakeStowSequence()
 	Subsystems &subsystems = Subsystems::GetInstance();
 
 	return subsystems.intakeSub.m_liftSub.StowCmd()
-		.AlongWith(frc2::WaitCommand(400_ms).ToPtr()
-			.AndThen(subsystems.intakeSub.m_rollerSub.EnableTimedCmd(0.7, 400_ms)));
+		.AlongWith(frc2::WaitCommand(300_ms).ToPtr()
+			.AndThen(subsystems.intakeSub.m_rollerSub.EnableTimedCmd(1, 700_ms)));
 }
