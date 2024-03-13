@@ -7,16 +7,19 @@
 #include <optional>
 
 #include <frc/TimedRobot.h>
+
 #include <frc2/command/CommandPtr.h>
 
 #include "RobotContainer.h"
 
-class Robot : public frc::TimedRobot {
- public:
+class Robot : public frc::TimedRobot
+{
+public:
 	void RobotInit() override;
 	void RobotPeriodic() override;
 	void DisabledInit() override;
 	void DisabledPeriodic() override;
+	void DisabledExit() override;
 	void AutonomousInit() override;
 	void AutonomousPeriodic() override;
 	void TeleopInit() override;
@@ -25,14 +28,14 @@ class Robot : public frc::TimedRobot {
 	void SimulationInit() override;
 	void SimulationPeriodic() override;
 
- private:
+private:
 	// Have it empty by default so that if testing teleop it
 	// doesn't have undefined behavior and potentially crash.
 	std::optional<frc2::CommandPtr> m_autonomousCommand;
 
-	frc::Timer m_robotTimer;
-
 	RobotContainer m_container;
+
+	// The command to home all components that require it
+	// Runs automatically when robot exits disabled
+	std::optional<frc2::CommandPtr> m_homeCommand;
 };
-// but i did other things
-//this is test, ignore

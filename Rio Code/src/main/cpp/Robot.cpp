@@ -6,9 +6,11 @@
 
 #include <frc2/command/CommandScheduler.h>
 
+#include "commands/GeneralCommands.h"
+
 void Robot::RobotInit()
 {
-
+	m_homeCommand = HomeAllCmd();
 }
 
 /**
@@ -29,9 +31,19 @@ void Robot::RobotPeriodic()
  * can use it to reset any subsystem information you want to clear when the
  * robot is disabled.
  */
-void Robot::DisabledInit() {}
+void Robot::DisabledInit()
+{
+	m_container.m_subsystems.robotDriveSub.Stop();
+}
 
 void Robot::DisabledPeriodic() {}
+
+void Robot::DisabledExit()
+{
+	m_container.Reset();
+
+	m_homeCommand->Schedule();
+}
 
 /**
  * This autonomous runs the autonomous command selected by your {@link
@@ -39,10 +51,11 @@ void Robot::DisabledPeriodic() {}
  */
 void Robot::AutonomousInit()
 {
-	m_autonomousCommand = m_container.GetAutonomousCommand();
+	m_autonomousCommand = m_container.GetAutonomousCommand().BeforeStarting(HomeAllCmd());
 
 	if (m_autonomousCommand)
 	{
+		m_homeCommand->Cancel();
 		m_autonomousCommand->Schedule();
 	}
 }

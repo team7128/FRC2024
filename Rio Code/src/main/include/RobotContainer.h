@@ -4,14 +4,16 @@
 
 #pragma once
 
-#include <frc/Timer.h>
+#include <cameraserver/CameraServer.h>
+
+#include <frc/smartdashboard/SendableChooser.h>
 
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandXboxController.h>
 
+#include "commands/Autos.h"
 #include "Constants.h"
-#include "subsystems/ExampleSubsystem.h"
-#include "subsystems/RobotDrive.h"
+#include "subsystems/Subsystems.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -20,23 +22,32 @@
  * scheduler calls).  Instead, the structure of the robot (including subsystems,
  * commands, and trigger mappings) should be declared here.
  */
-class RobotContainer {
- public:
+class RobotContainer
+{
+public:
 	RobotContainer();
+
+	void Reset();
 
 	frc2::CommandPtr GetAutonomousCommand();
 
- private:
-	// Replace with CommandPS4Controller or CommandJoystick if needed
+	/// Contains all subsystems to easily pass into other sections of the code
+	Subsystems &m_subsystems;
+
+private:
 	frc2::CommandXboxController m_driverController{
 		OperatorConstants::kDriverControllerPort
+	}, m_shooterController{
+		OperatorConstants::kShooterControllerPort
 	};
 
-	// The robot's subsystems are defined here...
-	ExampleSubsystem m_subsystem;
+	/// @brief Keeps track of whether we are doing climb
+	bool m_climbMode = false;
 
-	/// Robot drive subsystem
-	RobotDrive m_driveSubsystem;
+	frc2::Trigger m_climbModeTrigger;
 
+	frc::SendableChooser<autos::AutoPreset> m_autoChooser;
+
+	/// @brief Configures all controller bindings
 	void ConfigureBindings();
 };

@@ -6,11 +6,28 @@
 
 #include <frc2/command/CommandPtr.h>
 
-#include "subsystems/ExampleSubsystem.h"
-
 namespace autos {
-	/**
-	 * Example static factory for an autonomous command.
-	 */
-	frc2::CommandPtr ExampleAuto(ExampleSubsystem* subsystem);
+	enum StartLocation
+	{
+		Center,
+		Left,
+		Right
+	};
+
+	enum AutoPreset
+	{
+		None,
+		Mobility,
+		SpeakerShot,
+		SpeakerCenter,
+		SpeakerLeft,
+		SpeakerRight,
+		Custom
+	};
+
+	frc2::CommandPtr BasicAuto(StartLocation);
+
+	frc2::CommandPtr CompAuto(AutoPreset preset);
+
+	frc2::CommandPtr TestAuto();
 }  // namespace autos
