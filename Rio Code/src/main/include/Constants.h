@@ -33,12 +33,15 @@ namespace OperatorConstants
 	inline constexpr int kDriverControllerPort = 0;
 	inline constexpr int kShooterControllerPort = 1;
 
-	///	Max driving and turn speeds for teleop players
-	inline constexpr units::meters_per_second_t kMaxTeleopSpeed = 3_mps;
-	inline constexpr units::degrees_per_second_t kMaxTeleopTurnSpeed = 500_deg_per_s;
+	inline const std::string kTeleopSpeedKey = "TeleopDriveSpeed";
+	inline constexpr units::meters_per_second_t kTeleopSpeedDefault = 3_mps;
+	inline const std::string kTeleopTurnSpeedKey = "TeleopTurnSpeed";
+	inline constexpr units::degrees_per_second_t kTeleopTurnSpeedDefault = 500_deg_per_s;
 
-	inline constexpr units::meters_per_second_squared_t kMaxTeleopAccel = 6_mps_sq;
-	inline constexpr units::degrees_per_second_squared_t kMaxTeleopTurnAccel = 1000_deg_per_s_sq;
+	inline const std::string kMaxTeleopAccelKey = "TeleopDriveAccel";
+	inline constexpr units::meters_per_second_squared_t kMaxTeleopAccelDefault = 6_mps_sq;
+	inline const std::string kMaxTeleopTurnAccelKey = "TeleopTurnAccel";
+	inline constexpr units::degrees_per_second_squared_t kMaxTeleopTurnAccelDefault = 1000_deg_per_s_sq;
 }	// namespace OperatorConstants
 
 namespace HardwareConstants
@@ -225,6 +228,6 @@ namespace ShooterConstants
 	inline const std::string kSpeakerSpeedKey = "SpeakerShotSpeed";
 	inline constexpr double kSpeakerSpeedDefault = 1.0;
 	
-	inline const std::string kAmpSpeedKey = "SpeakerShotSpeed";
+	inline const std::string kAmpSpeedKey = "AmpShotSpeed";
 	inline constexpr double kAmpSpeedDefault = 0.15;
 }

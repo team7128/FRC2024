@@ -4,6 +4,7 @@
 
 #include "RobotContainer.h"
 
+#include <frc/Preferences.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 
@@ -16,10 +17,16 @@
 #include "commands/ShooterCommands.h"
 #include "commands/IntakeCommands.h"
 
+using namespace OperatorConstants;
+
 RobotContainer::RobotContainer() :
 	m_subsystems(Subsystems::GetInstance()),
-	m_driveLimiter(OperatorConstants::kMaxTeleopAccel),
-	m_turnLimiter(OperatorConstants::kMaxTeleopTurnAccel)
+	m_maxTeleopSpeed(kTeleopSpeedDefault),
+	m_maxTeleopTurnSpeed(kTeleopTurnSpeedDefault),
+	m_maxTeleopAccel(kMaxTeleopAccelDefault),
+	m_maxTeleopTurnAccel(kMaxTeleopTurnAccelDefault),
+	m_driveLimiter(m_maxTeleopAccel),
+	m_turnLimiter(m_maxTeleopTurnAccel)
 {
 	frc::CameraServer::StartAutomaticCapture();
 
@@ -32,6 +39,11 @@ RobotContainer::RobotContainer() :
 	m_autoChooser.AddOption("Custom", autos::Custom);
 
 	frc::SmartDashboard::PutData("Auto Selector", &m_autoChooser);
+
+	frc::Preferences::InitDouble(kTeleopSpeedKey, m_maxTeleopSpeed.value());
+	frc::Preferences::InitDouble(kTeleopTurnSpeedKey, m_maxTeleopTurnSpeed.value());
+	frc::Preferences::InitDouble(kMaxTeleopAccelKey, m_maxTeleopAccel.value());
+	frc::Preferences::InitDouble(kMaxTeleopTurnAccelKey, m_maxTeleopTurnAccel.value());
 
 	// Set shooter to not run when not in use
 	m_subsystems.shooterSub.SetDefaultCommand(m_subsystems.shooterSub.DisableCmd());
@@ -67,8 +79,8 @@ void RobotContainer::ConfigureBindings()
 
 	// Bind drivebase controls to left stick up/down and right stick left/right
 	m_subsystems.robotDriveSub.SetDefaultCommand(frc2::RunCommand([this] {
-			auto driveSpeed = this->m_driveLimiter.Calculate(-this->m_driverController.GetLeftY() * OperatorConstants::kMaxTeleopSpeed);
-			auto turnSpeed = this->m_turnLimiter.Calculate(-this->m_driverController.GetRightX() * OperatorConstants::kMaxTeleopTurnSpeed);
+			auto driveSpeed = this->m_driveLimiter.Calculate(-this->m_driverController.GetLeftY() * this->m_maxTeleopSpeed);
+			auto turnSpeed = this->m_turnLimiter.Calculate(-this->m_driverController.GetRightX() * this->m_maxTeleopTurnSpeed);
 
 			m_subsystems.robotDriveSub.ArcadeDrive(
 				driveSpeed,
@@ -123,6 +135,29 @@ void RobotContainer::ConfigureBindings()
 
 	// m_driverController.Start().OnTrue(m_subsystems.ampRampSub.HomeCmd());
 	// m_driverController.Back().OnTrue(m_subsystems.intakeSub.m_liftSub.HomeCmd());
+}
+
+void RobotContainer::UpdateParams()
+{
+	if (frc::Preferences::GetDouble(kTeleopSpeedKey, m_maxTeleopSpeed.value()) != m_maxTeleopSpeed.value())
+	{
+		m_maxTeleopSpeed = units::meters_per_second_t(frc::Preferences::GetDouble(kTeleopSpeedKey));
+	}
+	
+	if (frc::Preferences::GetDouble(kTeleopTurnSpeedKey, m_maxTeleopTurnSpeed.value()) != m_maxTeleopTurnSpeed.value())
+	{
+		m_maxTeleopTurnSpeed = units::degrees_per_second_t(frc::Preferences::GetDouble(kTeleopTurnSpeedKey));
+	}
+	
+	if (frc::Preferences::GetDouble(kMaxTeleopAccelKey, m_maxTeleopAccel.value()) != m_maxTeleopAccel.value())
+	{
+		m_maxTeleopAccel = units::meters_per_second_squared_t(frc::Preferences::GetDouble(kMaxTeleopAccelKey));
+	}
+	
+	if (frc::Preferences::GetDouble(kMaxTeleopTurnAccelKey, m_maxTeleopTurnAccel.value()) != m_maxTeleopTurnAccel.value())
+	{
+		m_maxTeleopTurnAccel = units::degrees_per_second_squared_t(frc::Preferences::GetDouble(kMaxTeleopTurnAccelKey));
+	}
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()

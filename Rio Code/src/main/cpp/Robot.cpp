@@ -41,6 +41,7 @@ void Robot::DisabledPeriodic() {}
 void Robot::DisabledExit()
 {
 	m_container.Reset();
+	m_container.UpdateParams();
 
 	m_homeCommand->Schedule();
 }

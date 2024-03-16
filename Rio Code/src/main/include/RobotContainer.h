@@ -6,6 +6,11 @@
 
 #include <cameraserver/CameraServer.h>
 
+#include <units/velocity.h>
+#include <units/angular_velocity.h>
+#include <units/acceleration.h>
+#include <units/angular_acceleration.h>
+
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/filter/SlewRateLimiter.h>
 
@@ -30,6 +35,8 @@ public:
 
 	void Reset();
 
+	void UpdateParams();
+
 	frc2::CommandPtr GetAutonomousCommand();
 
 	/// Contains all subsystems to easily pass into other sections of the code
@@ -48,6 +55,12 @@ private:
 	frc2::Trigger m_climbModeTrigger;
 
 	frc::SendableChooser<autos::AutoPreset> m_autoChooser;
+
+	units::meters_per_second_t m_maxTeleopSpeed;
+	units::degrees_per_second_t m_maxTeleopTurnSpeed;
+
+	units::meters_per_second_squared_t m_maxTeleopAccel;
+	units::degrees_per_second_squared_t m_maxTeleopTurnAccel;
 
 	frc::SlewRateLimiter<units::meters_per_second> m_driveLimiter;
 	frc::SlewRateLimiter<units::degrees_per_second> m_turnLimiter;
