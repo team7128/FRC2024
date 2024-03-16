@@ -56,17 +56,17 @@ frc2::CommandPtr autos::CompAuto(AutoPreset preset)
 		return subsystems.robotDriveSub.DriveDistanceCmd(0.8_m);
 
 	if (preset == AutoPreset::SpeakerShot)
-		return ShootSequence(1);
+		return SpeakerShotSequence();
 
 	if (preset == AutoPreset::SpeakerCenter)
 	{
-		autoSequence.push_back(ShootSequence(1));
+		autoSequence.push_back(SpeakerShotSequence());
 		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1.33_m));
 	}
 
 	if (preset == AutoPreset::SpeakerLeft)
 	{
-		autoSequence.push_back(ShootSequence(1));
+		autoSequence.push_back(SpeakerShotSequence());
 		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(0.5_m));
 		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(-30_deg));
 		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1.43_m));
@@ -74,7 +74,7 @@ frc2::CommandPtr autos::CompAuto(AutoPreset preset)
 
 	if (preset == AutoPreset::SpeakerRight)
 	{
-		autoSequence.push_back(ShootSequence(1));
+		autoSequence.push_back(SpeakerShotSequence());
 		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(0.5_m));
 		autoSequence.push_back(subsystems.robotDriveSub.TurnByAngleCmd(30_deg));
 		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1.43_m));

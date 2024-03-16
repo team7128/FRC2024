@@ -96,8 +96,8 @@ void RobotContainer::ConfigureBindings()
 	// A for amp shot (also deploys AmpRamp)
 	// B for speaker shot
 	// Will not work once climb mode is active
-	m_shooterController.A().OnTrue(AmpSequence(0.15).Unless([this] { return this->m_climbMode; }));
-	m_shooterController.B().OnTrue(ShootSequence(1.0).Unless([this] { return this->m_climbMode; }));
+	m_shooterController.A().OnTrue(AmpSequence().Unless([this] { return this->m_climbMode; }));
+	m_shooterController.B().OnTrue(SpeakerShotSequence().Unless([this] { return this->m_climbMode; }));
 
 	// Intake sequence commands, left bumper
 	// Deploys and intakes while held, retracts when released

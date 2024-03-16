@@ -37,12 +37,12 @@ frc2::CommandPtr Climb::DriveCmd(double speed)
 
 frc2::CommandPtr Climb::UpCmd()
 {
-	return DriveCmd(m_climbSpeed);
+	return this->Run([this] { this->Drive(this->m_climbSpeed); });
 }
 
 frc2::CommandPtr Climb::DownCmd()
 {
-	return DriveCmd(-m_climbSpeed);
+	return this->Run([this] { this->Drive(-this->m_climbSpeed); });
 }
 
 frc2::CommandPtr Climb::StopCmd()

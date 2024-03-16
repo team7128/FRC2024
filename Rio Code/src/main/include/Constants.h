@@ -221,4 +221,7 @@ namespace ShooterConstants
 {
 	inline const std::string kSpeakerSpeedKey = "SpeakerShotSpeed";
 	inline constexpr double kSpeakerSpeedDefault = 1.0;
+	
+	inline const std::string kAmpSpeedKey = "SpeakerShotSpeed";
+	inline constexpr double kAmpSpeedDefault = 0.15;
 }
