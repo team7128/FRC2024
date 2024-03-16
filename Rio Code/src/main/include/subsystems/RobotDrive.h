@@ -74,7 +74,7 @@ public:
 	 * @param distance The distance to drive. Can be positive or negative.
 	 * @return The distance drive command.
 	 */
-	frc2::CommandPtr DriveDistanceCmd(units::meter_t distance);
+	frc2::CommandPtr DriveDistanceCmd(units::meter_t distance, units::meters_per_second_t maxSpeed = DriveConstants::kMaxDriveVel);
 
 	/**
 	 * @brief Face a specific angle.
@@ -112,7 +112,7 @@ public:
 	 * @param stopDistance Optinal distance to stop before the target point.
 	 * @return Go to point command.
 	 */
-	frc2::CommandPtr GoToPointCmd(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance = 0_m);
+	frc2::CommandPtr GoToPointCmd(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance = 0_m, units::meters_per_second_t maxSpeed = DriveConstants::kMaxDriveVel);
 	
 	/**
 	 * @brief Configures drive controller.
@@ -192,7 +192,7 @@ private:
 	class DriveDistanceCmd_t : public frc2::CommandHelper<frc2::ProfiledPIDCommand<units::meters>, DriveDistanceCmd_t>
 	{
 	public:
-		DriveDistanceCmd_t(units::meter_t distance, RobotDrive *drive);
+		DriveDistanceCmd_t(units::meter_t distance, units::meters_per_second_t maxSpeed, RobotDrive *drive);
 
 		virtual void Initialize() override;
 
@@ -231,7 +231,7 @@ private:
 	class GoToPointCmd_t : public frc2::CommandHelper<frc2::Command, GoToPointCmd_t>
 	{
 	public:
-		GoToPointCmd_t(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance, RobotDrive *drive);
+		GoToPointCmd_t(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance, units::meters_per_second_t maxSpeed, RobotDrive *drive);
 
 		virtual void Initialize() override;
 		virtual void Execute() override;

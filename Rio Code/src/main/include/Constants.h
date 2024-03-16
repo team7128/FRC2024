@@ -135,9 +135,6 @@ namespace DriveConstants
 	inline constexpr units::meters_per_second_t kMaxDriveVel = 3_mps;
 	inline constexpr units::meters_per_second_squared_t kMaxDriveAccel = 30_mps_sq;
 
-	/// DO NOT EDIT THIS
-	inline const frc::ProfiledPIDController<units::meters> kAutoDriveController{ kDriveP, kDriveI, kDriveD, { kMaxDriveVel, kMaxDriveAccel } };
-
 	///	PID values for turning PID controllers
 	inline constexpr double kTurnP = 12.0,
 		kTurnI = 0.4,

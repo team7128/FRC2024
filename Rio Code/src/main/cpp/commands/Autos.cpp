@@ -12,6 +12,7 @@
 
 #include "subsystems/Subsystems.h"
 
+#include "commands/IntakeCommands.h"
 #include "commands/ShooterCommands.h"
 
 frc2::CommandPtr autos::BasicAuto(StartLocation startLocation)
@@ -85,7 +86,12 @@ frc2::CommandPtr autos::CompAuto(AutoPreset preset)
 		// ===== Set up custom auto here: =====
 		// Append to the autoSequence vector
 
-
+		autoSequence.push_back(SpeakerShotSequence());
+		autoSequence.push_back(IntakeDeploySequence());
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(1.5_m, 1_mps));
+		autoSequence.push_back(subsystems.robotDriveSub.DriveDistanceCmd(-1.5_m, 2_mps));
+		autoSequence.push_back(IntakeStowSequence());
+		autoSequence.push_back(SpeakerShotSequence());
 
 	}
 

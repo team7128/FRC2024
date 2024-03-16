@@ -86,9 +86,9 @@ void RobotDrive::ResetPosition()
 	m_odometryComponents.Reset();
 }
 
-frc2::CommandPtr RobotDrive::DriveDistanceCmd(units::meter_t distance)
+frc2::CommandPtr RobotDrive::DriveDistanceCmd(units::meter_t distance, units::meters_per_second_t maxSpeed)
 {
-	return DriveDistanceCmd_t(distance, this).ToPtr();
+	return DriveDistanceCmd_t(distance, maxSpeed, this).ToPtr();
 }
 
 frc2::CommandPtr RobotDrive::TurnToAngleCmd(units::degree_t angle)
@@ -107,9 +107,9 @@ frc2::CommandPtr RobotDrive::FacePointCmd(units::meter_t fieldX, units::meter_t 
 	return TurnToAngleCmd(angle);
 }
 
-frc2::CommandPtr RobotDrive::GoToPointCmd(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance)
+frc2::CommandPtr RobotDrive::GoToPointCmd(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance, units::meters_per_second_t maxSpeed)
 {
-	return GoToPointCmd_t(fieldX, fieldY, stopDistance, this).ToPtr();
+	return GoToPointCmd_t(fieldX, fieldY, stopDistance, maxSpeed, this).ToPtr();
 }
 
 void RobotDrive::ConfigureDriveController(frc::ProfiledPIDController<units::meters> &controller)
@@ -152,9 +152,12 @@ void RobotDrive::OdometryComponents::Reset()
 	m_rightEncoder.Reset();
 }
 
-RobotDrive::DriveDistanceCmd_t::DriveDistanceCmd_t(units::meter_t distance, RobotDrive *drive) :
+RobotDrive::DriveDistanceCmd_t::DriveDistanceCmd_t(units::meter_t distance, units::meters_per_second_t maxSpeed, RobotDrive *drive) :
 	CommandHelper(
-		kAutoDriveController,
+		frc::ProfiledPIDController<units::meters>{
+			kDriveP, kDriveI, kDriveD,
+			{ maxSpeed, kMaxDriveAccel }
+		},
 		[] { return 0_m; }, // Overwritten in Initialize()
 		distance,
 		[drive] (double output, auto) { drive->ArcadeDrive(units::meters_per_second_t(output), 0_deg_per_s, false); },
@@ -232,10 +235,13 @@ bool RobotDrive::TurnByAngleCmd_t::IsFinished()
 	return GetController().AtGoal();
 }
 
-RobotDrive::GoToPointCmd_t::GoToPointCmd_t(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance, RobotDrive *drive) :
+RobotDrive::GoToPointCmd_t::GoToPointCmd_t(units::meter_t fieldX, units::meter_t fieldY, units::meter_t stopDistance, units::meters_per_second_t maxSpeed, RobotDrive *drive) :
 	m_targetX(fieldX),
 	m_targetY(fieldY),
-	m_driveController(kAutoDriveController),
+	m_driveController(
+		kDriveP, kDriveI, kDriveD,
+		{ maxSpeed, kMaxDriveAccel }
+	),
 	m_turnController(kAutoTurnController),
 	m_robotDriveSub(drive)
 {
@@ -250,9 +256,6 @@ void RobotDrive::GoToPointCmd_t::Initialize()
 {
 	CommandHelper::Initialize();
 	m_turnController.Reset(m_robotDriveSub->m_odometryComponents.GetAngle());
-
-	// auto &tab = frc::Shuffleboard::GetTab("Main");
-	// tab.Add("GoTo PID", m_driveController);
 }
 
 void RobotDrive::GoToPointCmd_t::Execute()
