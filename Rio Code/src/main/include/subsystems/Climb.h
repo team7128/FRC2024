@@ -16,6 +16,8 @@ public:
      */
     void Drive(double speed);
 
+	virtual void Periodic() override;
+
     /**
      * @brief Constructs a command to move the climb arms
      * 
@@ -23,6 +25,9 @@ public:
      * @return The climb drive command
      */
     frc2::CommandPtr DriveCmd(double speed);
+
+	frc2::CommandPtr UpCmd();
+	frc2::CommandPtr DownCmd();
 
     /**
      * @brief Generates a command to stop the climb motors
@@ -32,5 +37,7 @@ public:
     frc2::CommandPtr StopCmd();
 
 private:
+	double m_climbSpeed;
+
     ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_leftClimbMotor, m_rightClimbMotor;
 };

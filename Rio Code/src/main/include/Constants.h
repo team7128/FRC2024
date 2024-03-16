@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <string>
 #include <math.h>
 
 #include <units/length.h>
@@ -205,7 +206,22 @@ namespace AmpRampConstants
 	inline constexpr double khomeSpeed = 0.2;
 
 	/// Amp ramp deploy and stow angles
-	inline constexpr units::degree_t kDeployAngle = 60_deg,
+	inline constexpr units::degree_t kDeployAngle = 70_deg,
 		kStowAngle = -70_deg,
 		kHomeAngle = -90_deg;
+}
+
+namespace ClimbConstants
+{
+	inline const std::string kCLimbSpeedKey = "ClimbSpeed";
+	inline constexpr double kClimbSpeedDefault = 0.65;
+}
+
+namespace ShooterConstants
+{
+	inline const std::string kSpeakerSpeedKey = "SpeakerShotSpeed";
+	inline constexpr double kSpeakerSpeedDefault = 1.0;
+	
+	inline const std::string kAmpSpeedKey = "SpeakerShotSpeed";
+	inline constexpr double kAmpSpeedDefault = 0.15;
 }

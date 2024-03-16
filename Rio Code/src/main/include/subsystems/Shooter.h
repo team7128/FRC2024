@@ -9,6 +9,8 @@ class Shooter : public frc2::SubsystemBase
 public:
 	Shooter();
 
+	virtual void Periodic() override;
+
 	/**
 	 * @brief Runs the shooter wheels.
 	 * 
@@ -45,7 +47,14 @@ public:
 	 */
 	frc2::CommandPtr DisableCmd();
 
+	frc2::CommandPtr EnableSpeakerCmd();
+	frc2::CommandPtr EnableSpeakerTimedCmd(units::second_t time);
+	frc2::CommandPtr EnableAmpCmd();
+	frc2::CommandPtr EnableAmpTimedCmd(units::second_t time);
+
 private:
 	/// Spark MAXes to run the shooter NEOs
 	rev::CANSparkMax m_shooterLeft, m_shooterRight;	
+
+	double m_speakerSpeed, m_ampSpeed;
 };
