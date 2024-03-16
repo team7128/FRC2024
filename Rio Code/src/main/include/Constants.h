@@ -205,7 +205,7 @@ namespace AmpRampConstants
 	inline constexpr double khomeSpeed = 0.2;
 
 	/// Amp ramp deploy and stow angles
-	inline constexpr units::degree_t kDeployAngle = 60_deg,
+	inline constexpr units::degree_t kDeployAngle = 70_deg,
 		kStowAngle = -70_deg,
 		kHomeAngle = -90_deg;
 }

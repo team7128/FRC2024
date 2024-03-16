@@ -77,7 +77,7 @@ void RobotContainer::ConfigureBindings()
 	// Bind climb up to POV (D-pad) up
 	// This also enters climb mode, removing the shooter's control of the intake
 	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 0; })
-		.WhileTrue(m_subsystems.climbSub.DriveCmd(0.5))
+		.WhileTrue(m_subsystems.climbSub.DriveCmd(0.65))
 		.OnTrue(frc2::InstantCommand([this] { this->m_climbMode = true; }).ToPtr());
 	// Bind climb down to POV (D-pad) down
 	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 180; }).WhileTrue(m_subsystems.climbSub.DriveCmd(-0.5));
@@ -96,7 +96,7 @@ void RobotContainer::ConfigureBindings()
 	// A for amp shot (also deploys AmpRamp)
 	// B for speaker shot
 	// Will not work once climb mode is active
-	m_shooterController.A().OnTrue(AmpSequence(0.1).Unless([this] { return this->m_climbMode; }));
+	m_shooterController.A().OnTrue(AmpSequence(0.15).Unless([this] { return this->m_climbMode; }));
 	m_shooterController.B().OnTrue(ShootSequence(1.0).Unless([this] { return this->m_climbMode; }));
 
 	// Intake sequence commands, left bumper
