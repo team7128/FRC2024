@@ -48,6 +48,8 @@ private:
 
 	frc::SendableChooser<autos::AutoPreset> m_autoChooser;
 
+	frc::PIDController m_drivePID, m_turnPID;
+
 	/// @brief Configures all controller bindings
 	void ConfigureBindings();
 };
