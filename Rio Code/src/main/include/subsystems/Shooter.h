@@ -9,8 +9,6 @@ class Shooter : public frc2::SubsystemBase
 public:
 	Shooter();
 
-	virtual void Periodic() override;
-
 	/**
 	 * @brief Runs the shooter wheels.
 	 * 
@@ -57,4 +55,6 @@ private:
 	rev::CANSparkMax m_shooterLeft, m_shooterRight;	
 
 	double m_speakerSpeed, m_ampSpeed;
+
+	void UpdateParams();
 };

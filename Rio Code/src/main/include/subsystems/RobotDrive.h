@@ -153,11 +153,11 @@ public:
 
 		inline units::meter_t GetLeftDistance() const { return units::meter_t(m_leftEncoder.GetDistance()); }
 		inline units::meter_t GetRightDistance() const { return units::meter_t(m_rightEncoder.GetDistance()); }
-		inline units::meter_t GetAvgDistance() const { return (GetLeftDistance() + GetRightDistance()) / 2; }
+		inline units::meter_t GetAvgDistance() const { return (GetRightDistance()); }
 
 		inline units::meters_per_second_t GetLeftSpeed() const { return units::meters_per_second_t(m_leftEncoder.GetRate()); }
 		inline units::meters_per_second_t GetRightSpeed() const { return units::meters_per_second_t(m_rightEncoder.GetRate()); }
-		inline units::meters_per_second_t GetAvgSpeed() const { return (GetLeftSpeed() + GetRightSpeed()) / 2; }
+		inline units::meters_per_second_t GetAvgSpeed() const { return (GetRightSpeed()); }
 	} m_odometryComponents;
 
 private:

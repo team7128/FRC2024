@@ -16,14 +16,6 @@ Climb::Climb() :
 	frc::Preferences::InitDouble(kCLimbSpeedKey, m_climbSpeed);
 }
 
-void Climb::Periodic()
-{
-	if (frc::Preferences::GetDouble(kCLimbSpeedKey, m_climbSpeed) != m_climbSpeed)
-	{
-		m_climbSpeed = frc::Preferences::GetDouble(kCLimbSpeedKey);
-	}
-}
-
 void Climb::Drive(double speed)
 {
     m_rightClimbMotor.Set(speed);
@@ -37,12 +29,12 @@ frc2::CommandPtr Climb::DriveCmd(double speed)
 
 frc2::CommandPtr Climb::UpCmd()
 {
-	return this->Run([this] { this->Drive(this->m_climbSpeed); });
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Drive(this->m_climbSpeed); }));
 }
 
 frc2::CommandPtr Climb::DownCmd()
 {
-	return this->Run([this] { this->Drive(-this->m_climbSpeed); });
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Drive(-this->m_climbSpeed); }));
 }
 
 frc2::CommandPtr Climb::StopCmd()
@@ -51,4 +43,12 @@ frc2::CommandPtr Climb::StopCmd()
         this->m_leftClimbMotor.StopMotor();
         this->m_rightClimbMotor.StopMotor();
     });
+}
+
+void Climb::UpdateParams()
+{
+	if (frc::Preferences::GetDouble(kCLimbSpeedKey, m_climbSpeed) != m_climbSpeed)
+	{
+		m_climbSpeed = frc::Preferences::GetDouble(kCLimbSpeedKey);
+	}
 }

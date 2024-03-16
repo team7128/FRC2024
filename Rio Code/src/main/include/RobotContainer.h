@@ -7,6 +7,7 @@
 #include <cameraserver/CameraServer.h>
 
 #include <frc/smartdashboard/SendableChooser.h>
+#include <frc/filter/SlewRateLimiter.h>
 
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandXboxController.h>
@@ -47,6 +48,9 @@ private:
 	frc2::Trigger m_climbModeTrigger;
 
 	frc::SendableChooser<autos::AutoPreset> m_autoChooser;
+
+	frc::SlewRateLimiter<units::meters_per_second> m_driveLimiter;
+	frc::SlewRateLimiter<units::degrees_per_second> m_turnLimiter;
 
 	/// @brief Configures all controller bindings
 	void ConfigureBindings();

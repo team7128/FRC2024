@@ -36,6 +36,9 @@ namespace OperatorConstants
 	///	Max driving and turn speeds for teleop players
 	inline constexpr units::meters_per_second_t kMaxTeleopSpeed = 3_mps;
 	inline constexpr units::degrees_per_second_t kMaxTeleopTurnSpeed = 500_deg_per_s;
+
+	inline constexpr units::meters_per_second_squared_t kMaxTeleopAccel = 6_mps_sq;
+	inline constexpr units::degrees_per_second_squared_t kMaxTeleopTurnAccel = 1000_deg_per_s_sq;
 }	// namespace OperatorConstants
 
 namespace HardwareConstants
