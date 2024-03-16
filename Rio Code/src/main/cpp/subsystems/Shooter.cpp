@@ -54,22 +54,22 @@ frc2::CommandPtr Shooter::DisableCmd()
 
 frc2::CommandPtr Shooter::EnableSpeakerCmd()
 {
-	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_speakerSpeed); }));
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_speakerSpeed); })).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::EnableSpeakerTimedCmd(units::second_t time)
 {
-	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_speakerSpeed); }).WithTimeout(time));
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_speakerSpeed); }).WithTimeout(time)).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::EnableAmpCmd()
 {
-	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_ampSpeed); }));
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_ampSpeed); })).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::EnableAmpTimedCmd(units::second_t time)
 {
-	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_ampSpeed); }).WithTimeout(time));
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_ampSpeed); }).WithTimeout(time)).AndThen(DisableCmd());
 }
 
 void Shooter::UpdateParams()
