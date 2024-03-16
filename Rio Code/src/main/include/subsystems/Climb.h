@@ -16,8 +16,6 @@ public:
      */
     void Drive(double speed);
 
-	virtual void Periodic() override;
-
     /**
      * @brief Constructs a command to move the climb arms
      * 
@@ -40,4 +38,6 @@ private:
 	double m_climbSpeed;
 
     ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_leftClimbMotor, m_rightClimbMotor;
+
+	void UpdateParams();
 };

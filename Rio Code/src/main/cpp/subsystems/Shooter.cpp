@@ -26,19 +26,6 @@ Shooter::Shooter() :
 	frc::Preferences::InitDouble(kAmpSpeedKey, m_ampSpeed);
 }
 
-void Shooter::Periodic()
-{
-	if (frc::Preferences::GetDouble(kSpeakerSpeedKey, m_speakerSpeed) != m_speakerSpeed)
-	{
-		m_speakerSpeed = frc::Preferences::GetDouble(kSpeakerSpeedKey);
-	}
-	
-	if (frc::Preferences::GetDouble(kAmpSpeedKey, m_ampSpeed) != m_ampSpeed)
-	{
-		m_ampSpeed = frc::Preferences::GetDouble(kAmpSpeedKey);
-	}
-}
-
 void Shooter::Enable(double speed)
 {
 	m_shooterLeft.Set(speed);
@@ -67,20 +54,33 @@ frc2::CommandPtr Shooter::DisableCmd()
 
 frc2::CommandPtr Shooter::EnableSpeakerCmd()
 {
-	return this->Run([this] { this->Enable(this->m_speakerSpeed); });
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_speakerSpeed); }));
 }
 
 frc2::CommandPtr Shooter::EnableSpeakerTimedCmd(units::second_t time)
 {
-	return this->Run([this] { this->Enable(this->m_speakerSpeed); }).WithTimeout(time);
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_speakerSpeed); }).WithTimeout(time));
 }
 
 frc2::CommandPtr Shooter::EnableAmpCmd()
 {
-	return this->Run([this] { this->Enable(this->m_ampSpeed); });
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_ampSpeed); }));
 }
 
 frc2::CommandPtr Shooter::EnableAmpTimedCmd(units::second_t time)
 {
-	return this->Run([this] { this->Enable(this->m_ampSpeed); }).WithTimeout(time);
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_ampSpeed); }).WithTimeout(time));
+}
+
+void Shooter::UpdateParams()
+{
+	if (frc::Preferences::GetDouble(kSpeakerSpeedKey, m_speakerSpeed) != m_speakerSpeed)
+	{
+		m_speakerSpeed = frc::Preferences::GetDouble(kSpeakerSpeedKey);
+	}
+	
+	if (frc::Preferences::GetDouble(kAmpSpeedKey, m_ampSpeed) != m_ampSpeed)
+	{
+		m_ampSpeed = frc::Preferences::GetDouble(kAmpSpeedKey);
+	}
 }
