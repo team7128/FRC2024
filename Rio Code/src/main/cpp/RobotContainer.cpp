@@ -152,11 +152,13 @@ void RobotContainer::UpdateParams()
 	if (frc::Preferences::GetDouble(kMaxTeleopAccelKey, m_maxTeleopAccel.value()) != m_maxTeleopAccel.value())
 	{
 		m_maxTeleopAccel = units::meters_per_second_squared_t(frc::Preferences::GetDouble(kMaxTeleopAccelKey));
+		m_driveLimiter = frc::SlewRateLimiter<units::meters_per_second>(m_maxTeleopAccel);
 	}
 	
 	if (frc::Preferences::GetDouble(kMaxTeleopTurnAccelKey, m_maxTeleopTurnAccel.value()) != m_maxTeleopTurnAccel.value())
 	{
 		m_maxTeleopTurnAccel = units::degrees_per_second_squared_t(frc::Preferences::GetDouble(kMaxTeleopTurnAccelKey));
+		m_turnLimiter = frc::SlewRateLimiter<units::degrees_per_second>(m_maxTeleopTurnAccel);
 	}
 }
 
