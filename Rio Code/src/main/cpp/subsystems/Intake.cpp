@@ -124,8 +124,7 @@ frc2::CommandPtr Intake::Lift::HomeCmd()
 
 frc2::CommandPtr Intake::Lift::GoToAngleCmd(units::degree_t angle)
 {
-	return this->RunOnce([this, angle] {
-			this->SetGoal(angle);
-			this->Enable();
-		}); // .AndThen(frc2::WaitUntilCommand([this] { return this->m_controller.AtGoal(); }).ToPtr());
+	return this->RunOnce([this] { this->Enable(); })
+		.AndThen(this->Run([this, angle] { this->SetGoal(angle); }));
+		// .AndThen(frc2::WaitUntilCommand([this] { return this->m_controller.AtGoal(); }).ToPtr());
 }
