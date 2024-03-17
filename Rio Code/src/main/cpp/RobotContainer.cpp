@@ -98,7 +98,7 @@ void RobotContainer::ConfigureBindings()
 		.OnTrue(frc2::InstantCommand([this] { this->m_climbMode = true; }).ToPtr());
 	// Bind climb down to POV (D-pad) down
 	frc2::Trigger([this] { return this->m_driverController.GetPOV() == 180; }).WhileTrue(m_subsystems.climbSub.DownCmd());
-
+	
 	// Bind intake climb position to A button
 	// This moves the intake into position to lock in the climb arms
 	// Will only happen if in climb mode

@@ -67,7 +67,7 @@ void Intake::Lift::Drive(double speed)
 
 frc2::CommandPtr Intake::Lift::DriveTimedCmd(double speed, units::second_t time)
 {
-	return this->Run([this, speed] { this->Drive(speed); }).WithTimeout(time);
+	return this->RunOnce([this] { this->Disable(); }).AndThen(this->Run([this, speed] { this->Drive(speed); }).WithTimeout(time));
 }
 
 frc2::CommandPtr Intake::Lift::DisableCmd()
@@ -127,5 +127,5 @@ frc2::CommandPtr Intake::Lift::GoToAngleCmd(units::degree_t angle)
 	return this->RunOnce([this, angle] {
 			this->SetGoal(angle);
 			this->Enable();
-		}).AndThen(frc2::WaitUntilCommand([this] { return this->m_controller.AtGoal(); }).ToPtr());
+		}); // .AndThen(frc2::WaitUntilCommand([this] { return this->m_controller.AtGoal(); }).ToPtr());
 }
