@@ -14,7 +14,8 @@ Shooter::Shooter() :
 	m_shooterLeft(CANConstants::kShooterSparkIDs[0], rev::CANSparkMaxLowLevel::MotorType::kBrushless),
 	m_shooterRight(CANConstants::kShooterSparkIDs[1], rev::CANSparkMaxLowLevel::MotorType::kBrushless),
 	m_speakerSpeed(kSpeakerSpeedDefault),
-	m_ampSpeed(kAmpSpeedDefault)
+	m_ampSpeed(kAmpSpeedDefault),
+	m_rampTime(kRampTimeDefault)
 {
 	// Reversing the shooter so positive shoots the note out
 	m_shooterLeft.SetInverted(true);
@@ -39,12 +40,12 @@ void Shooter::Disable()
 
 frc2::CommandPtr Shooter::EnableCmd(double speed)
 {
-	return this->Run([this, speed] { this->Enable(speed); }).AndThen(DisableCmd());
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this, speed] { this->Enable(speed); })).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::EnableTimedCmd(double speed, units::second_t time)
 {
-	return this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time).AndThen(DisableCmd());
+	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this, speed] { this->Enable(speed); }).WithTimeout(time)).AndThen(DisableCmd());
 }
 
 frc2::CommandPtr Shooter::DisableCmd()
@@ -82,5 +83,12 @@ void Shooter::UpdateParams()
 	if (frc::Preferences::GetDouble(kAmpSpeedKey, m_ampSpeed) != m_ampSpeed)
 	{
 		m_ampSpeed = frc::Preferences::GetDouble(kAmpSpeedKey);
+	}
+
+	if (frc::Preferences::GetDouble(kRampTimeKey, m_rampTime) != m_rampTime)
+	{
+		m_rampTime = frc::Preferences::GetDouble(kRampTimeKey, m_rampTime);
+		m_shooterLeft.SetOpenLoopRampRate(m_rampTime);
+		m_shooterRight.SetOpenLoopRampRate(m_rampTime);
 	}
 }

@@ -230,4 +230,7 @@ namespace ShooterConstants
 	
 	inline const std::string kAmpSpeedKey = "AmpShotSpeed";
 	inline constexpr double kAmpSpeedDefault = 0.15;
+
+	inline const std::string kRampTimeKey = "ShooterRampTime";
+	inline constexpr double kRampTimeDefault = 3.0;
 }

@@ -10,7 +10,7 @@ frc2::CommandPtr ShootSequence(double speed)
 
     return subsystems.shooterSub.EnableTimedCmd(speed, 2_s)
 		.DeadlineWith(
-			frc2::WaitCommand(1.5_s).ToPtr().AndThen(
+			frc2::WaitCommand(subsystems.shooterSub.GetRampTime(speed)).ToPtr().AndThen(
 				subsystems.intakeSub.m_rollerSub.EnableCmd(-1.0)
 		));
 }

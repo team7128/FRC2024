@@ -79,8 +79,8 @@ void RobotContainer::ConfigureBindings()
 
 	// Bind drivebase controls to left stick up/down and right stick left/right
 	m_subsystems.robotDriveSub.SetDefaultCommand(frc2::RunCommand([this] {
-			auto driveSpeed = this->m_driveLimiter.Calculate(-this->m_driverController.GetLeftY() * this->m_maxTeleopSpeed);
-			auto turnSpeed = this->m_turnLimiter.Calculate(-this->m_driverController.GetRightX() * this->m_maxTeleopTurnSpeed);
+			auto driveSpeed = m_driveLimiter.Calculate(-m_driverController.GetLeftY() * m_maxTeleopSpeed);
+			auto turnSpeed = m_turnLimiter.Calculate(-m_driverController.GetRightX() * m_maxTeleopTurnSpeed);
 
 			m_subsystems.robotDriveSub.ArcadeDrive(
 				driveSpeed,

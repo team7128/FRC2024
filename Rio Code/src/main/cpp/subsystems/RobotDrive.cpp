@@ -43,6 +43,14 @@ void RobotDrive::Periodic()
 	// Update internal position and upload it to the field widget
 	m_position = m_odometry.Update(m_odometryComponents.GetAngle(), m_odometryComponents.GetLeftDistance(), m_odometryComponents.GetRightDistance());
 	m_field.SetRobotPose(m_position);
+
+	auto leftPosition = m_odometryComponents.GetLeftDistance();
+	auto rightPosition = m_odometryComponents.GetRightDistance();
+
+	m_motorFL.SetSelectedSensorPosition(leftPosition.value());
+	m_motorBL.SetSelectedSensorPosition(leftPosition.value());
+	m_motorFR.SetSelectedSensorPosition(rightPosition.value());
+	m_motorBR.SetSelectedSensorPosition(rightPosition.value());
 }
 
 void RobotDrive::SimulationPeriodic()
@@ -65,14 +73,16 @@ void RobotDrive::ArcadeDrive(units::meters_per_second_t velocity, units::degrees
 {
 	// Convert forward/rotational speed to wheel velocities
 	auto wheelSpeeds = m_diffDriveKinematics.ToWheelSpeeds({ velocity, 0_mps, rotational });
-	wheelSpeeds.Desaturate(kMaxWheelSpeed);
+
+	m_motorFL.Set(ctre::phoenix::motorcontrol::VictorSPXControlMode::Velocity, wheelSpeeds.left.value());
+	m_motorFR.Set(ctre::phoenix::motorcontrol::VictorSPXControlMode::Velocity, wheelSpeeds.right.value());
 
 	// Using tank drive to simply provide wheel speeds, instead of converting back to chassis speeds for arcade
-	m_diffDrive.TankDrive(
-		wheelSpeeds.left / kMaxWheelSpeed,
-		wheelSpeeds.right / kMaxWheelSpeed,
-		squareInputs
-	); 
+	// m_diffDrive.TankDrive(
+	// 	wheelSpeeds.left / kMaxWheelSpeed,
+	// 	wheelSpeeds.right / kMaxWheelSpeed,
+	// 	squareInputs
+	// );
 }
 
 void RobotDrive::Stop()
