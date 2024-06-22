@@ -50,7 +50,7 @@ public:
 	frc2::CommandPtr EnableAmpCmd();
 	frc2::CommandPtr EnableAmpTimedCmd(units::second_t time);
 
-	double GetRampTime(double speed);
+	units::second_t GetRampTime(double speed);
 
 private:
 	/// Spark MAXes to run the shooter NEOs

@@ -73,6 +73,11 @@ frc2::CommandPtr Shooter::EnableAmpTimedCmd(units::second_t time)
 	return this->RunOnce([this] { this->UpdateParams(); }).AndThen(this->Run([this] { this->Enable(this->m_ampSpeed); }).WithTimeout(time)).AndThen(DisableCmd());
 }
 
+units::second_t Shooter::GetRampTime(double speed)
+{
+	return units::second_t(speed * m_rampTime);
+}
+
 void Shooter::UpdateParams()
 {
 	if (frc::Preferences::GetDouble(kSpeakerSpeedKey, m_speakerSpeed) != m_speakerSpeed)
