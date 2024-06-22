@@ -44,6 +44,7 @@ RobotContainer::RobotContainer() :
 	frc::Preferences::InitDouble(kTeleopTurnSpeedKey, m_maxTeleopTurnSpeed.value());
 	frc::Preferences::InitDouble(kMaxTeleopAccelKey, m_maxTeleopAccel.value());
 	frc::Preferences::InitDouble(kMaxTeleopTurnAccelKey, m_maxTeleopTurnAccel.value());
+	UpdateParams();
 
 	// Set shooter to not run when not in use
 	m_subsystems.shooterSub.SetDefaultCommand(m_subsystems.shooterSub.DisableCmd());
@@ -160,6 +161,8 @@ void RobotContainer::UpdateParams()
 		m_maxTeleopTurnAccel = units::degrees_per_second_squared_t(frc::Preferences::GetDouble(kMaxTeleopTurnAccelKey));
 		m_turnLimiter = frc::SlewRateLimiter<units::degrees_per_second>(m_maxTeleopTurnAccel);
 	}
+
+	m_subsystems.robotDriveSub.UpdateParams();
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()

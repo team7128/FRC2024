@@ -68,6 +68,13 @@ public:
 	inline frc::Pose2d GetPosition() const { return m_position; }
 
 	/**
+	 * @brief Updates configurable parameters.
+	 * 
+	 * Currently only whether to use encoders.
+	 */
+	void UpdateParams();
+
+	/**
 	 * @brief Drive in a straight line for a set distance.
 	 * Creates a command to drive forward/backwards by a specified distance.
 	 *
@@ -136,6 +143,7 @@ public:
 	 */
 	struct OdometryComponents
 	{
+		bool useEncoders;
 		AHRS m_gyro;
 		frc::Encoder m_leftEncoder, m_rightEncoder;
 
@@ -145,19 +153,24 @@ public:
 		HAL_SimDeviceHandle m_gyroSim = HALSIM_GetSimDeviceHandle("navX-Sensor[4]");
 		hal::SimDouble m_angleSim = HALSIM_GetSimValueHandle(m_gyroSim, "Yaw");
 
+		// Velocity-estimated position when encoders are disabled
+		units::meters_per_second_t leftSpeed, rightSpeed;
+		units::meter_t leftDistance, rightDistance;
+
 		OdometryComponents();
 
+		void Periodic();
 		void Reset();
 
 		inline units::degree_t GetAngle() { return -units::degree_t(m_gyro.GetYaw()); }
 
-		inline units::meter_t GetLeftDistance() const { return units::meter_t(m_leftEncoder.GetDistance()); }
-		inline units::meter_t GetRightDistance() const { return units::meter_t(m_rightEncoder.GetDistance()); }
-		inline units::meter_t GetAvgDistance() const { return (GetRightDistance()); }
+		inline units::meter_t GetLeftDistance() const { return useEncoders ? units::meter_t(m_leftEncoder.GetDistance()) : leftDistance; }
+		inline units::meter_t GetRightDistance() const { return useEncoders ? units::meter_t(m_rightEncoder.GetDistance()) : rightDistance; }
+		inline units::meter_t GetAvgDistance() const { return (GetRightDistance() + GetLeftDistance()) / 2; }
 
-		inline units::meters_per_second_t GetLeftSpeed() const { return units::meters_per_second_t(m_leftEncoder.GetRate()); }
-		inline units::meters_per_second_t GetRightSpeed() const { return units::meters_per_second_t(m_rightEncoder.GetRate()); }
-		inline units::meters_per_second_t GetAvgSpeed() const { return (GetRightSpeed()); }
+		inline units::meters_per_second_t GetLeftSpeed() const { return useEncoders ? units::meters_per_second_t(m_leftEncoder.GetRate()) : leftSpeed; }
+		inline units::meters_per_second_t GetRightSpeed() const { return useEncoders ? units::meters_per_second_t(m_rightEncoder.GetRate()) : rightSpeed; }
+		inline units::meters_per_second_t GetAvgSpeed() const { return (GetRightSpeed() + GetRightSpeed()) / 2; }
 	} m_odometryComponents;
 
 private:

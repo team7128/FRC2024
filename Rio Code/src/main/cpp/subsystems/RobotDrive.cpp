@@ -1,8 +1,10 @@
 #include "subsystems/RobotDrive.h"
 
+#include <frc/Preferences.h>
 #include <frc/RobotController.h>
 
 #include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/shuffleboard/BuiltInWidgets.h>
 
 #include <frc2/command/InstantCommand.h>
 #include <frc2/command/RunCommand.h>
@@ -36,6 +38,8 @@ RobotDrive::RobotDrive() :
 	auto &tab = frc::Shuffleboard::GetTab("Main");
 	tab.Add(m_diffDrive);
 	tab.Add(m_field);
+
+	frc::Preferences::InitBoolean(DriveConstants::kUseEncoderKey, DriveConstants::kUseEncoderDefault);
 }
 
 void RobotDrive::Periodic()
@@ -51,6 +55,8 @@ void RobotDrive::Periodic()
 	m_motorBL.SetSelectedSensorPosition(leftPosition.value());
 	m_motorFR.SetSelectedSensorPosition(rightPosition.value());
 	m_motorBR.SetSelectedSensorPosition(rightPosition.value());
+
+	m_odometryComponents.Periodic();
 }
 
 void RobotDrive::SimulationPeriodic()
@@ -77,23 +83,27 @@ void RobotDrive::ArcadeDrive(units::meters_per_second_t velocity, units::degrees
 	m_motorFL.Set(ctre::phoenix::motorcontrol::VictorSPXControlMode::Velocity, wheelSpeeds.left.value());
 	m_motorFR.Set(ctre::phoenix::motorcontrol::VictorSPXControlMode::Velocity, wheelSpeeds.right.value());
 
-	// Using tank drive to simply provide wheel speeds, instead of converting back to chassis speeds for arcade
-	// m_diffDrive.TankDrive(
-	// 	wheelSpeeds.left / kMaxWheelSpeed,
-	// 	wheelSpeeds.right / kMaxWheelSpeed,
-	// 	squareInputs
-	// );
+	m_odometryComponents.leftSpeed = wheelSpeeds.left;
+	m_odometryComponents.rightSpeed = wheelSpeeds.right;
 }
 
 void RobotDrive::Stop()
 {
 	m_diffDrive.StopMotor();
+	
+	m_odometryComponents.leftSpeed = 0_mps;
+	m_odometryComponents.rightSpeed = 0_mps;
 }
 
 void RobotDrive::ResetPosition()
 {
 	m_odometry.ResetPosition({ m_odometryComponents.GetAngle() }, m_odometryComponents.GetLeftDistance(), m_odometryComponents.GetRightDistance(), m_position);
 	m_odometryComponents.Reset();
+}
+
+void RobotDrive::UpdateParams()
+{
+	m_odometryComponents.useEncoders = frc::Preferences::GetBoolean(DriveConstants::kUseEncoderKey, m_odometryComponents.useEncoders);
 }
 
 frc2::CommandPtr RobotDrive::DriveDistanceCmd(units::meter_t distance)
@@ -155,11 +165,22 @@ RobotDrive::OdometryComponents::OdometryComponents() :
 	mainTab.Add("Gyro", m_gyro);
 }
 
+void RobotDrive::OdometryComponents::Periodic()
+{
+	leftDistance += leftSpeed * 20_ms;
+	rightDistance += rightSpeed * 20_ms;
+}
+
 void RobotDrive::OdometryComponents::Reset()
 {
 	m_gyro.Reset();
 	m_leftEncoder.Reset();
 	m_rightEncoder.Reset();
+
+	leftSpeed = 0_mps;
+	rightSpeed = 0_mps;
+	leftDistance = 0_m;
+	rightDistance = 0_m;
 }
 
 RobotDrive::DriveDistanceCmd_t::DriveDistanceCmd_t(units::meter_t distance, RobotDrive *drive) :

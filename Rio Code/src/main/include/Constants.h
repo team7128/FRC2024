@@ -155,6 +155,9 @@ namespace DriveConstants
 
 	/// DO NOT EDIT THIS
 	inline const frc::ProfiledPIDController<units::degrees> kAutoTurnController{ kTurnP, kTurnI, kTurnD, { kMaxTurnVel, kMaxTurnAccel } };
+
+	inline const std::string kUseEncoderKey = "UseEncoders";
+	inline constexpr bool kUseEncoderDefault = true;
 }
 
 /**
