@@ -199,6 +199,8 @@ private:
 
 	frc::Field2d m_field;
 
+	int ToSensorUnits(double value);
+
 	// HERE BE DRAGONS
 	// All the classes required to implement drivebase auto commands
 

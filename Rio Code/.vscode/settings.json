@@ -93,6 +93,8 @@
 	"variant": "cpp",
 	"*.inc": "cpp",
 	"xtr1common": "cpp",
-	"xutility": "cpp"
+	"xutility": "cpp",
+	"xmemory": "cpp",
+	"xstring": "cpp"
 }
 }

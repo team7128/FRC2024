@@ -20,41 +20,28 @@
         "header": {
           "open": true
         }
-      },
-      "navX-Sensor[4]": {
-        "header": {
-          "open": true
-        }
       }
     }
   },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Main/AmpRamp limit switch": "Digital Input",
       "/Shuffleboard/Main/DifferentialDrive[1]": "DifferentialDrive",
       "/Shuffleboard/Main/Field": "Field2d",
       "/Shuffleboard/Main/GoTo PID": "ProfiledPIDController",
-      "/Shuffleboard/Main/Gyro": "Gyro"
+      "/Shuffleboard/Main/Gyro": "Gyro",
+      "/Shuffleboard/Main/Intake limit switch": "Digital Input",
+      "/SmartDashboard/Auto Selector": "String Chooser"
     },
     "windows": {
-      "/Shuffleboard/Main/DifferentialDrive[1]": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Shuffleboard/Main/Field": {
-        "bottom": 544,
-        "builtin": "2024 Crescendo",
-        "height": 8.013679504394531,
-        "left": 46,
-        "right": 1088,
-        "top": 36,
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
         "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
-      },
-      "/Shuffleboard/Main/GoTo PID": {
         "window": {
           "visible": true
         }
@@ -62,6 +49,25 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "Transitory Values": {
+      "open": false
+    },
+    "persistent": {
+      "Preferences": {
+        "open": true
+      }
+    },
+    "retained": {
+      "SmartDashboard": {
+        "Auto Selector": {
+          "open": true
+        },
+        "open": true
+      }
+    },
     "transitory": {
       "Shuffleboard": {
         "Main": {

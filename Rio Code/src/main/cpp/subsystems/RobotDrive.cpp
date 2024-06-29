@@ -18,10 +18,10 @@ using namespace DriveConstants;
 
 //drive base can IDs
 RobotDrive::RobotDrive() :
-	m_motorFR(CANConstants::kDrivebaseMotorIDs[2]),
-	m_motorBR(CANConstants::kDrivebaseMotorIDs[3]),
 	m_motorFL(CANConstants::kDrivebaseMotorIDs[0]),
 	m_motorBL(CANConstants::kDrivebaseMotorIDs[1]),
+	m_motorFR(CANConstants::kDrivebaseMotorIDs[2]),
+	m_motorBR(CANConstants::kDrivebaseMotorIDs[3]),
 	m_diffDrive(m_motorFL, m_motorFR),
 	m_diffDriveKinematics(kWheelbaseWidth),
 	m_odometry{ frc::Rotation2d(0_deg), 0_m, 0_m }
@@ -48,14 +48,6 @@ void RobotDrive::Periodic()
 	m_position = m_odometry.Update(m_odometryComponents.GetAngle(), m_odometryComponents.GetLeftDistance(), m_odometryComponents.GetRightDistance());
 	m_field.SetRobotPose(m_position);
 
-	auto leftPosition = m_odometryComponents.GetLeftDistance();
-	auto rightPosition = m_odometryComponents.GetRightDistance();
-
-	m_motorFL.SetSelectedSensorPosition(leftPosition.value());
-	m_motorBL.SetSelectedSensorPosition(leftPosition.value());
-	m_motorFR.SetSelectedSensorPosition(rightPosition.value());
-	m_motorBR.SetSelectedSensorPosition(rightPosition.value());
-
 	m_odometryComponents.Periodic();
 }
 
@@ -72,19 +64,30 @@ void RobotDrive::SimulationPeriodic()
 	m_odometryComponents.m_leftEncoderSim.SetRate(m_driveSim.GetLeftVelocity().value());
 	m_odometryComponents.m_rightEncoderSim.SetDistance(m_driveSim.GetRightPosition().value());
 	m_odometryComponents.m_rightEncoderSim.SetRate(m_driveSim.GetRightVelocity().value());
-	m_odometryComponents.m_angleSim.Set(-m_driveSim.GetHeading().Radians().value());
+
+	m_odometryComponents.leftSpeed = m_driveSim.GetLeftVelocity();
+	m_odometryComponents.rightSpeed = m_driveSim.GetRightVelocity();
+	m_odometryComponents.leftDistance = m_driveSim.GetLeftPosition();
+	m_odometryComponents.rightDistance = m_driveSim.GetRightPosition();
+
+	m_odometryComponents.m_angleSim.Set(m_driveSim.GetHeading().Radians().value());
 }
 
 void RobotDrive::ArcadeDrive(units::meters_per_second_t velocity, units::degrees_per_second_t rotational, bool squareInputs)
 {
 	// Convert forward/rotational speed to wheel velocities
 	auto wheelSpeeds = m_diffDriveKinematics.ToWheelSpeeds({ velocity, 0_mps, rotational });
+	wheelSpeeds.Desaturate(kMaxWheelSpeed);
 
-	m_motorFL.Set(ctre::phoenix::motorcontrol::VictorSPXControlMode::Velocity, wheelSpeeds.left.value());
-	m_motorFR.Set(ctre::phoenix::motorcontrol::VictorSPXControlMode::Velocity, wheelSpeeds.right.value());
+	// Using tank drive to simply provide wheel speeds, instead of converting back to chassis speeds for arcade
+	m_diffDrive.TankDrive(
+		wheelSpeeds.left / kMaxWheelSpeed,
+		wheelSpeeds.right / kMaxWheelSpeed,
+		squareInputs
+	); 
 
-	m_odometryComponents.leftSpeed = wheelSpeeds.left;
-	m_odometryComponents.rightSpeed = wheelSpeeds.right;
+	m_odometryComponents.leftSpeed = m_motorFL.Get() * kMaxWheelSpeed;
+	m_odometryComponents.rightSpeed = m_motorFR.Get() * kMaxWheelSpeed;
 }
 
 void RobotDrive::Stop()
@@ -97,8 +100,7 @@ void RobotDrive::Stop()
 
 void RobotDrive::ResetPosition()
 {
-	m_odometry.ResetPosition({ m_odometryComponents.GetAngle() }, m_odometryComponents.GetLeftDistance(), m_odometryComponents.GetRightDistance(), m_position);
-	m_odometryComponents.Reset();
+	m_odometry.ResetPosition({ m_odometryComponents.GetAngle() }, m_odometryComponents.GetLeftDistance(), m_odometryComponents.GetRightDistance(), frc::Pose2d());
 }
 
 void RobotDrive::UpdateParams()
@@ -181,6 +183,11 @@ void RobotDrive::OdometryComponents::Reset()
 	rightSpeed = 0_mps;
 	leftDistance = 0_m;
 	rightDistance = 0_m;
+}
+
+int RobotDrive::ToSensorUnits(double value)
+{
+	return std::round(value / (DriveConstants::kWheelDiameter.value() * std::numbers::pi) * DriveConstants::kEncoderCountsPerRev * 10.0);
 }
 
 RobotDrive::DriveDistanceCmd_t::DriveDistanceCmd_t(units::meter_t distance, RobotDrive *drive) :
